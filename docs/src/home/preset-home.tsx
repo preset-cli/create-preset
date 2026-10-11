@@ -17,6 +17,9 @@ import { PresetFooter } from '@/site/footer'
 import { DocsSiteLink } from '@/site/docs-link'
 import { cn } from '@/utils/class-name'
 import { homeCopy } from './copy'
+import { exampleCopy } from '@/examples/copy'
+import { HomeScenarios } from './scenarios'
+import { SourceDiagram } from './source-diagram'
 import styles from './preset-home.module.css'
 
 const githubUrl = 'https://github.com/preset-cli/create-preset'
@@ -31,6 +34,8 @@ export function PresetHome({
   source: DocsSource
 }) {
   const copy = homeCopy[entry.locale === 'zh' ? 'zh' : 'en']
+  const locale = entry.locale === 'zh' ? 'zh' : 'en'
+  const examplesHref = `${locale === 'zh' ? '/zh' : ''}/examples`
   const home = createHomeData({ config, locale: entry.locale, source })
   const navigation = buildHeaderNavigation({
     config,
@@ -88,89 +93,52 @@ export function PresetHome({
         data-pagefind-body=""
       >
         <span hidden data-pagefind-filter={`locale:${entry.locale}`} />
-        <section
-          className={cn(
-            styles.hero,
-            'flex min-h-130 flex-col items-center justify-center px-6 py-12 text-center md:min-h-180',
-          )}
-          aria-labelledby="home-title"
-          data-docs-region="home-hero"
-        >
-          <img
-            src="/logo-compact.svg"
-            alt={copy.logo}
-            width={858}
-            height={623}
-            className="mb-4 h-auto w-80 max-w-[60vw]"
-            fetchPriority="high"
-          />
-          <h1
-            id="home-title"
-            className={cn(
-              styles.title,
-              'text-balance text-4xl leading-tight font-bold md:text-8xl',
-            )}
-          >
-            {home.title}
-          </h1>
-          <p className="mt-4 max-w-4xl text-pretty text-xl leading-relaxed text-gray-600 md:text-2xl">
-            {home.description}
-          </p>
-          <div className="mt-8 flex min-h-5 flex-wrap items-center justify-center gap-2">
-            {badge && (
-              <a
-                href={badge.href}
-                target="_blank"
-                rel="noreferrer"
-                className={styles.badgeLink}
-              >
-                <img
-                  src={badge.src}
-                  alt={badge.alt}
-                  width={100}
-                  height={20}
-                  className="h-5 w-auto"
-                />
-              </a>
-            )}
-            <a
-              href={githubUrl}
-              target="_blank"
-              rel="noreferrer"
-              className={styles.badgeLink}
-            >
-              <img
-                src="https://img.shields.io/github/stars/preset-cli/create-preset?style=social"
-                alt={copy.stars}
-                width={100}
-                height={20}
-                className="h-5 w-auto"
-              />
-            </a>
+        <section className={styles.hero} aria-labelledby="home-title" data-docs-region="home-hero">
+          <div className={styles.heroInner}>
+            <div>
+              <div className={styles.brand}>
+                <img src="/logo-compact.svg" alt={copy.logo} width={858} height={623} className="h-auto w-12" fetchPriority="high" />
+                <span>{home.title}</span>
+                <span className={styles.brandRule} aria-hidden="true" />
+                <span className={styles.brandNote}>{locale === 'zh' ? '一份源码，按需生成' : 'One source. Your presets.'}</span>
+              </div>
+              <h1 id="home-title" className={styles.title}>
+                {locale === 'zh' ? <>模板只差几处，<br /><span>也要维护两份？</span></> : <>Similar templates.<br /><span>Separate copies?</span></>}
+              </h1>
+              <p className={styles.description}>
+                {locale === 'zh'
+                  ? '公共代码维护一份，文件差异交给 Preset。创建项目时，选取目录、调整配置，生成需要的版本。'
+                  : 'Maintain shared code once. Describe the differences in a preset, then select files and apply changes when creating each project.'}
+              </p>
+              <div className="mt-7 flex flex-wrap items-center gap-3">
+                <Button asChild size="lg"><a href="#scenarios">{locale === 'zh' ? '看看文件怎么变' : 'See what changes'} <span aria-hidden="true">↓</span></a></Button>
+                <Button asChild variant="outline" size="lg"><Link href={home.primaryAction.href}>{home.primaryAction.label}</Link></Button>
+              </div>
+              <div className={styles.heroMeta}>
+                {badge && <a href={badge.href} target="_blank" rel="noreferrer" className={styles.badgeLink}><img src={badge.src} alt={badge.alt} width={100} height={20} className="h-5 w-auto" /></a>}
+                <Link href={examplesHref}>{exampleCopy[locale].all} <span aria-hidden="true">↗</span></Link>
+                <a href={githubUrl} target="_blank" rel="noreferrer">GitHub <span aria-hidden="true">↗</span></a>
+              </div>
+            </div>
+            <SourceDiagram locale={locale} />
           </div>
-          <div className="mt-8">{startLink()}</div>
         </section>
 
-        <div className="mx-auto w-11/12 max-w-5xl pb-12 md:pb-16">
+        <div className="mx-auto w-11/12 max-w-6xl pb-12 md:pb-16">
+          <HomeScenarios locale={locale} />
           <section
-            className="my-4 md:my-12"
+            className="my-12 border-t border-border pt-10 md:my-16"
             aria-label={copy.featuresLabel}
             data-docs-region="home-highlights"
           >
-            <ul className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            <ul className="grid grid-cols-1 gap-x-12 gap-y-8 sm:grid-cols-2 md:grid-cols-3">
               {copy.features.map((feature) => (
                 <li
                   key={feature.title}
-                  className="rounded-xl bg-neutral-50 p-4 dark:bg-neutral-800"
+                  className="py-2"
                 >
                   <div className="mb-2 flex items-center gap-4">
-                    <span
-                      aria-hidden="true"
-                      className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-neutral-100 text-xl dark:bg-neutral-900"
-                    >
-                      {feature.icon}
-                    </span>
-                    <h2 className="text-balance text-lg font-bold">
+                    <h2 className="text-balance text-base font-semibold">
                       {feature.title}
                     </h2>
                   </div>

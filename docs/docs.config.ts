@@ -28,8 +28,8 @@ export const docsConfig = defineDocsConfig({
     eyebrow: false,
     title: 'Create Preset',
     description: {
-      en: 'Provides the ability to quickly create preset projects.',
-      zh: '提供快速创建预设项目模板的能力。',
+      en: 'Similar templates. Still maintaining separate copies?',
+      zh: '模板相似，却要维护多份？',
     },
     primaryAction: {
       href: '/guide/getting-started',
