@@ -23,6 +23,21 @@
   background-color: hsl(var(--foreground) / 0.35);
 }
 
+/* File examples need room for both paths and code inside the shared docs shell. */
+@media (width >= 64rem) {
+  [data-docs-region='docs-shell']:has([data-preset-example]) {
+    column-gap: 3rem;
+  }
+
+  [data-docs-region='docs-shell']:has([data-preset-example]) [data-docs-region='sidebar'] {
+    width: 14rem;
+  }
+
+  [data-docs-region='docs-shell']:has([data-preset-example]) [data-docs-region='toc'] {
+    display: none;
+  }
+}
+
 /* Keep shared header controls reachable on phones, including docs pages. */
 @media (width < 40rem) {
   [data-docs-region='header'] > div {

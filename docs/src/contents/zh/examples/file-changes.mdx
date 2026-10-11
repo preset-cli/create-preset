@@ -1,0 +1,30 @@
+---
+title: 创建时调整文件和配置
+description: 把删除文件、写入说明、替换文本和修改 JSON 放进创建流程。
+order: 4
+---
+
+# 创建时调整文件和配置
+
+每次拉取服务模板，都要删除演示文件、重写 README、改掉默认配置，再清理 `package.json` 中的演示命令。
+
+将这些固定步骤写进一个 Preset，生成项目时一起处理。
+
+<ExampleExplorer example="file-changes" locale="zh" />
+
+## 按什么顺序处理
+
+1. `exclude`：复制前排除 `demo.js`。
+2. `write`：用 `lines` 中的内容覆盖 `README.md`，每项对应一行。
+3. `replace`：将 `.env.example` 中的 `APP_LABEL=Starter` 换成 `APP_LABEL=Team`。
+4. `json`：合并 `package.json`；将 `scripts.demo` 设为 `null`，删除这条命令，保留 `scripts.start`。
+
+切换到「生成结果」，逐个打开这些文件，即可看到修改后的内容。
+
+## 调整配置后先预览
+
+```bash
+pnpm create preset init my-service --from ./presets/service.json --dry-run
+```
+
+预览列出创建计划，不会下载仓库或验证替换文本是否存在。正式创建后，再检查生成目录中的文件。完整字段见[Preset 配置](/zh/guide/preset-configs)。

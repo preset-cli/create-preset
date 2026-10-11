@@ -2,6 +2,10 @@ import { docsContentConfig } from '../../content.config'
 
 export const headerNavigation = [
   {
+    href: '/examples',
+    label: { en: 'Examples', zh: '使用示例' },
+  },
+  {
     href: '/guide/getting-started',
     label: { en: 'Guide', zh: '指南' },
   },

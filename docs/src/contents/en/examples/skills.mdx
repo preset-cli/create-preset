@@ -1,0 +1,31 @@
+---
+title: Reuse skills across projects
+description: Keep common skills in one repository and bring the needed files into each project.
+order: 2
+---
+
+# Reuse skills across projects
+
+Code review, documentation, and testing often use the same conventions across projects. Keep those skills in one repository and bring them into a project with one command.
+
+This example selects the `skills` directory in `team-resources`. Switch to “Without testing” to see how `exclude` leaves out a skill that this project does not need.
+
+<ExampleExplorer example="skills" />
+
+## Where the files go
+
+Run the example command from the project root, targeting a new or empty `.agents/skills` directory. The target should match the skills location read by your agent. Change the command's target path if needed.
+
+The source file `skills/code-review/SKILL.md` becomes `.agents/skills/code-review/SKILL.md` in the project. Several projects can use this same collection without publishing an npm package to distribute it.
+
+## If the project already has skills
+
+**For a nonempty target, the CLI asks to replace the entire target directory. It does not merge individual skills.** Generate into a new temporary directory first, then inspect and copy the files needed:
+
+```bash
+pnpm create preset init skills-preview --from ./presets/skills.json
+```
+
+Copy the selected skill folders into the project's skills directory. Compare same-name files before overwriting them. Use the same process to review later updates. Create Preset does not continuously sync skills or link them into other agents' directories.
+
+This example distributes skills already collected in a single repository. Collect files from multiple upstream repositories there first; each preset specifies one source repository.

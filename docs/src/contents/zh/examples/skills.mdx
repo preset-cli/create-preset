@@ -1,0 +1,31 @@
+---
+title: 在多个项目中复用 Skills
+description: 将常用 Skills 放在一个仓库，按需引入项目。
+order: 2
+---
+
+# 在多个项目中复用 Skills
+
+代码审查、文档写作、测试约定，在不同项目里经常都会用到。将这些 Skills 集中放在一个仓库，项目需要时，运行一条命令引入。
+
+示例从 `team-resources` 仓库选取 `skills` 目录。切换到「不含测试 Skill」，可以看到 `exclude` 如何排除这次用不上的内容。
+
+<ExampleExplorer example="skills" locale="zh" />
+
+## 放到项目的哪个位置
+
+从项目根目录运行示例命令，将文件生成到新建或空的 `.agents/skills` 目录。该目录应与你使用的 agent 的 Skills 读取位置一致；需要其他位置时，修改命令的目标路径。
+
+源文件中的 `skills/code-review/SKILL.md` 会出现在项目的 `.agents/skills/code-review/SKILL.md`。仓库中同一批 Skills 可以供多个项目使用，无需为分发再发布一个 npm 包。
+
+## 项目已经有 Skills 时
+
+**目标目录已有内容时，CLI 会询问是否替换整个目标目录，不会逐个 Skill 合并。** 可以先生成到一个新的临时目录，再检查并复制需要的文件：
+
+```bash
+pnpm create preset init skills-preview --from ./presets/skills.json
+```
+
+将需要的 Skill 文件夹复制到项目的 Skills 目录；同名文件先比较再决定是否覆盖。后续更新也可以用这个方式检查变化。Create Preset 不会持续同步 Skills，亦不会自动链接到其他 agent 的目录。
+
+这里展示的是集中保存在同一仓库的 Skills。多个上游仓库需要先整理到该仓库中；一份 Preset 只指定一个源仓库。
