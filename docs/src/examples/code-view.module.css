@@ -1,0 +1,79 @@
+.code {
+  margin: 0;
+  max-height: 32rem;
+  overflow: auto;
+  padding-block: 1.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  line-height: 1.8;
+  tab-size: 2;
+  background: hsl(var(--background));
+}
+
+.code > code {
+  display: block;
+  min-width: max-content;
+}
+
+.compact {
+  font-size: 0.75rem;
+  max-height: 20rem;
+}
+
+.line {
+  display: flex;
+  padding-right: 1rem;
+  min-height: 1.8em;
+}
+
+.number {
+  width: 2.75rem;
+  flex-shrink: 0;
+  padding-right: 0.875rem;
+  text-align: right;
+  color: hsl(var(--muted-foreground) / 0.6);
+  user-select: none;
+}
+
+.token {
+  color: var(--code-light);
+}
+
+:global(.dark) .token {
+  color: var(--code-dark);
+}
+
+.line[data-edit='source'] {
+  background: rgb(217 119 6 / 0.09);
+  box-shadow: inset 2px 0 #b7791f;
+}
+
+.line[data-edit='output'] {
+  background: rgb(16 185 129 / 0.09);
+  box-shadow: inset 2px 0 #059669;
+}
+
+.mark {
+  flex-shrink: 0;
+  font-size: 0.625rem;
+  line-height: 1.6;
+  color: hsl(var(--muted-foreground));
+}
+
+.mark[data-change='modified'],
+.mark[data-change='removed'] {
+  color: #9a6700;
+}
+
+.mark[data-change='added'] {
+  color: #047857;
+}
+
+:global(.dark) .mark[data-change='modified'],
+:global(.dark) .mark[data-change='removed'] {
+  color: #e9b65e;
+}
+
+:global(.dark) .mark[data-change='added'] {
+  color: #6ee7b7;
+}

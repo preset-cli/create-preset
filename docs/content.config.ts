@@ -18,6 +18,22 @@ export const docsContentConfig = {
   },
   sections: {
     showcase: { layout: 'content' },
+    examples: {
+      layout: 'docs',
+      sidebar: [
+        {
+          type: 'group',
+          label: { en: 'Examples', zh: '使用示例' },
+          items: [
+            { type: 'item', href: '/examples', label: { en: 'Overview', zh: '示例概览' } },
+            { type: 'item', href: '/examples/variants', label: { en: 'Template variants', zh: '同一模板，不同版本' } },
+            { type: 'item', href: '/examples/skills', label: { en: 'Shared skills', zh: '复用常用 Skills' } },
+            { type: 'item', href: '/examples/monorepo', label: { en: 'Extract from a monorepo', zh: '提取 monorepo 子项目' } },
+            { type: 'item', href: '/examples/file-changes', label: { en: 'Edit files during creation', zh: '创建时调整文件' } },
+          ],
+        },
+      ],
+    },
     guide: {
       layout: 'docs',
       sidebar: [

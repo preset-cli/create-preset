@@ -1,0 +1,30 @@
+---
+title: Edit files during project creation
+description: Remove files, write documentation, replace text, and merge JSON during creation.
+order: 4
+---
+
+# Edit files during project creation
+
+Every clone of a service starter needs the same cleanup: remove demo files, rewrite the README, change a default value, and delete the demo command from `package.json`.
+
+Describe these steps in a preset and apply them when generating the project.
+
+<ExampleExplorer example="file-changes" />
+
+## Order of operations
+
+1. `exclude` skips `demo.js` before copying.
+2. `write` replaces `README.md` with the entries in `lines`, one per line.
+3. `replace` changes `APP_LABEL=Starter` to `APP_LABEL=Team` in `.env.example`.
+4. `json` merges `package.json`. Setting `scripts.demo` to `null` removes that command while keeping `scripts.start`.
+
+Switch to Output and open each file to see the result.
+
+## Preview an edited config
+
+```bash
+pnpm create preset init my-service --from ./presets/service.json --dry-run
+```
+
+The preview lists the creation plan. It does not clone the repository or check whether replacement text exists. Run creation and inspect the generated files afterward. See [Preset Configs](/guide/preset-configs) for the full reference.

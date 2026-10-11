@@ -1,0 +1,26 @@
+---
+title: One template, different editions
+description: Keep one source and describe file differences in separate presets.
+order: 1
+---
+
+# One template, different editions
+
+The basic edition does not need analytics; the team edition keeps it. The rest of the code is shared, yet maintaining two templates means fixing both copies.
+
+Keep one complete source. Use a preset for each edition to describe what changes. The basic preset removes analytics and its entry-point references. The team preset keeps them. Generated projects remain independent.
+
+<ExampleExplorer example="variants" />
+
+## What changes
+
+- Both configs use the same `source`, selecting the repository's `starter` directory.
+- The basic preset excludes `src/analytics.ts` and uses `replace` to remove its import and call.
+- The team preset keeps the complete source. Switch editions and inspect `src/main.ts` in Output.
+- The generated `package.json` name follows the target directory.
+
+Shared code is maintained once in the source repository. Edition-specific changes run during creation. Existing generated projects do not receive later source updates automatically.
+
+`replace` matches exact text. If the source changes and that text disappears, creation fails until the preset is updated. Use this approach for small, explicit differences. The CLI does not analyze module references or convert TypeScript automatically.
+
+See [Preset Configs](/guide/preset-configs) for all operations.

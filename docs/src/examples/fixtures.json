@@ -1,0 +1,222 @@
+{
+  "variants": {
+    "repo": "https://github.com/example/app-starter.git",
+    "sourceFiles": {
+      "starter/src/main.ts": "import { track } from './analytics'\n\ntrack('app-started')\nconsole.log('Hello')\n",
+      "starter/src/analytics.ts": "export function track(event: string) {\n  console.log('[analytics]', event)\n}\n",
+      "starter/package.json": "{\n  \"name\": \"app-starter\",\n  \"version\": \"1.0.0\",\n  \"private\": true\n}\n"
+    },
+    "presets": [
+      {
+        "id": "basic",
+        "label": {
+          "zh": "基础版",
+          "en": "Basic"
+        },
+        "target": "my-basic-app",
+        "config": {
+          "$schema": "https://preset.js.org/schema/preset.schema.json",
+          "version": 1,
+          "source": {
+            "repo": "https://github.com/example/app-starter.git",
+            "directory": "starter"
+          },
+          "exclude": [
+            "src/analytics.ts"
+          ],
+          "replace": [
+            {
+              "path": "src/main.ts",
+              "from": "import { track } from './analytics'\n\ntrack('app-started')\n",
+              "to": ""
+            }
+          ]
+        },
+        "outputFiles": {
+          "src/main.ts": "console.log('Hello')\n",
+          "package.json": "{\n  \"name\": \"my-basic-app\",\n  \"version\": \"1.0.0\",\n  \"private\": true\n}\n"
+        }
+      },
+      {
+        "id": "team",
+        "label": {
+          "zh": "团队版",
+          "en": "Team"
+        },
+        "target": "my-team-app",
+        "config": {
+          "$schema": "https://preset.js.org/schema/preset.schema.json",
+          "version": 1,
+          "source": {
+            "repo": "https://github.com/example/app-starter.git",
+            "directory": "starter"
+          }
+        },
+        "outputFiles": {
+          "src/main.ts": "import { track } from './analytics'\n\ntrack('app-started')\nconsole.log('Hello')\n",
+          "src/analytics.ts": "export function track(event: string) {\n  console.log('[analytics]', event)\n}\n",
+          "package.json": "{\n  \"name\": \"my-team-app\",\n  \"version\": \"1.0.0\",\n  \"private\": true\n}\n"
+        }
+      }
+    ]
+  },
+  "skills": {
+    "repo": "https://github.com/example/team-resources.git",
+    "sourceFiles": {
+      "skills/code-review/SKILL.md": "---\nname: code-review\ndescription: Review code changes for correctness and edge cases.\n---\n\nRead the diff. Report concrete problems with file references.\n",
+      "skills/writing/SKILL.md": "---\nname: writing\ndescription: Edit project documentation for clarity.\n---\n\nUse short, direct sentences. Keep commands and API names accurate.\n",
+      "skills/testing/SKILL.md": "---\nname: testing\ndescription: Check changed behavior with focused tests.\n---\n\nRead the project test commands. Cover the changed behavior and failure paths.\n"
+    },
+    "presets": [
+      {
+        "id": "skills",
+        "label": {
+          "zh": "全部 Skills",
+          "en": "All skills"
+        },
+        "target": ".agents/skills",
+        "config": {
+          "$schema": "https://preset.js.org/schema/preset.schema.json",
+          "version": 1,
+          "source": {
+            "repo": "https://github.com/example/team-resources.git",
+            "directory": "skills"
+          }
+        },
+        "outputFiles": {
+          "code-review/SKILL.md": "---\nname: code-review\ndescription: Review code changes for correctness and edge cases.\n---\n\nRead the diff. Report concrete problems with file references.\n",
+          "writing/SKILL.md": "---\nname: writing\ndescription: Edit project documentation for clarity.\n---\n\nUse short, direct sentences. Keep commands and API names accurate.\n",
+          "testing/SKILL.md": "---\nname: testing\ndescription: Check changed behavior with focused tests.\n---\n\nRead the project test commands. Cover the changed behavior and failure paths.\n"
+        }
+      },
+      {
+        "id": "skills-without-testing",
+        "label": {
+          "zh": "不含测试 Skill",
+          "en": "Without testing"
+        },
+        "target": ".agents/skills",
+        "config": {
+          "$schema": "https://preset.js.org/schema/preset.schema.json",
+          "version": 1,
+          "source": {
+            "repo": "https://github.com/example/team-resources.git",
+            "directory": "skills"
+          },
+          "exclude": [
+            "testing"
+          ]
+        },
+        "outputFiles": {
+          "code-review/SKILL.md": "---\nname: code-review\ndescription: Review code changes for correctness and edge cases.\n---\n\nRead the diff. Report concrete problems with file references.\n",
+          "writing/SKILL.md": "---\nname: writing\ndescription: Edit project documentation for clarity.\n---\n\nUse short, direct sentences. Keep commands and API names accurate.\n"
+        }
+      }
+    ]
+  },
+  "monorepo": {
+    "repo": "https://github.com/example/product.git",
+    "sourceFiles": {
+      "apps/docs/src/page.ts": "import { Button } from '@example/ui'\n\nexport const action = Button({ label: 'Get started' })\n",
+      "apps/docs/package.json": "{\n  \"name\": \"docs-starter\",\n  \"version\": \"1.0.0\",\n  \"private\": true,\n  \"dependencies\": {\n    \"@example/ui\": \"workspace:*\"\n  }\n}\n",
+      "apps/docs/src/__tests__/page.test.ts": "// Tests used while maintaining this starter.\n",
+      "packages/ui/package.json": "{\n  \"name\": \"@example/ui\",\n  \"version\": \"1.2.3\"\n}\n",
+      "pnpm-workspace.yaml": "packages:\n  - apps/*\n  - packages/*\n"
+    },
+    "presets": [
+      {
+        "id": "docs",
+        "label": {
+          "zh": "独立文档项目",
+          "en": "Standalone docs"
+        },
+        "target": "my-docs",
+        "config": {
+          "$schema": "https://preset.js.org/schema/preset.schema.json",
+          "version": 1,
+          "source": {
+            "repo": "https://github.com/example/product.git",
+            "directory": "apps/docs"
+          },
+          "exclude": [
+            "src/__tests__"
+          ],
+          "packageJson": {
+            "resolveWorkspace": true,
+            "workspaceVersions": {
+              "@example/ui": "1.2.3"
+            }
+          }
+        },
+        "outputFiles": {
+          "src/page.ts": "import { Button } from '@example/ui'\n\nexport const action = Button({ label: 'Get started' })\n",
+          "package.json": "{\n  \"name\": \"my-docs\",\n  \"version\": \"1.0.0\",\n  \"private\": true,\n  \"dependencies\": {\n    \"@example/ui\": \"1.2.3\"\n  }\n}\n"
+        }
+      }
+    ]
+  },
+  "file-changes": {
+    "repo": "https://github.com/example/service-starter.git",
+    "sourceFiles": {
+      "index.js": "console.log('Service ready')\n",
+      "demo.js": "console.log('Sample data')\n",
+      "README.md": "# Service starter\n\nA template with sample data.\n",
+      ".env.example": "APP_LABEL=Starter\n",
+      "package.json": "{\n  \"name\": \"service-starter\",\n  \"version\": \"1.0.0\",\n  \"private\": true,\n  \"scripts\": {\n    \"start\": \"node index.js\",\n    \"demo\": \"node demo.js\"\n  }\n}\n"
+    },
+    "presets": [
+      {
+        "id": "service",
+        "label": {
+          "zh": "团队服务",
+          "en": "Team service"
+        },
+        "target": "my-service",
+        "config": {
+          "$schema": "https://preset.js.org/schema/preset.schema.json",
+          "version": 1,
+          "source": {
+            "repo": "https://github.com/example/service-starter.git",
+            "directory": ""
+          },
+          "exclude": [
+            "demo.js"
+          ],
+          "write": [
+            {
+              "path": "README.md",
+              "lines": [
+                "# Team service",
+                "",
+                "Run `npm start` to start the service."
+              ]
+            }
+          ],
+          "replace": [
+            {
+              "path": ".env.example",
+              "from": "APP_LABEL=Starter",
+              "to": "APP_LABEL=Team"
+            }
+          ],
+          "json": [
+            {
+              "path": "package.json",
+              "value": {
+                "scripts": {
+                  "demo": null
+                }
+              }
+            }
+          ]
+        },
+        "outputFiles": {
+          "index.js": "console.log('Service ready')\n",
+          "README.md": "# Team service\n\nRun `npm start` to start the service.\n",
+          ".env.example": "APP_LABEL=Team\n",
+          "package.json": "{\n  \"name\": \"my-service\",\n  \"version\": \"1.0.0\",\n  \"private\": true,\n  \"scripts\": {\n    \"start\": \"node index.js\"\n  }\n}\n"
+        }
+      }
+    ]
+  }
+}

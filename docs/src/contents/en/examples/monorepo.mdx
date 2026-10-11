@@ -1,0 +1,24 @@
+---
+title: Extract a project from a monorepo
+description: Select a directory, exclude internal files, and replace workspace dependencies.
+order: 3
+---
+
+# Extract a project from a monorepo
+
+The docs starter lives in `apps/docs` and the component library in `packages/ui`. To use only the starter, someone has to extract its directory and adjust its dependencies.
+
+The preset selects `apps/docs`, excludes internal starter tests, and replaces a `workspace:` dependency with a specified version.
+
+<ExampleExplorer example="monorepo" />
+
+## What changes
+
+- `source.directory` selects `apps/docs`. Its contents become the new project's root files.
+- Exclusion paths are relative to that selected directory, so the config uses `src/__tests__`.
+- `packages/ui` and the root `pnpm-workspace.yaml` are not copied.
+- `packageJson.resolveWorkspace` enables dependency conversion. `workspaceVersions` pins `@example/ui` to `1.2.3`, skipping the registry lookup for that package.
+
+`@example/ui` is a fictional package. Use a published package and version that your environment can install. The component implementation is not automatically bundled from the monorepo into the new project.
+
+Without a pinned version, the CLI queries `npm view` using your npm registry settings. See [Resolve workspace dependencies](/guide/preset-configs#resolve-workspace-dependencies) for the resolution rules.
