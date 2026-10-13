@@ -9,7 +9,8 @@ import {
   createHomeData,
   DefaultDocsHeader,
 } from '@blackwork/docs/theme'
-import { Button } from 'blackwork/rsc'
+import { Button, Card, CardContent, CardHeader } from 'blackwork/rsc'
+import { Boxes, Zap, Terminal, Layers, SlidersHorizontal, KeyRound } from 'lucide-react'
 import Link from 'next/link'
 import { DocsHeaderSearchAction } from '@/search/docs-search'
 import { PackageManagerCommands } from '@/mdx/components/package-manager-commands'
@@ -23,6 +24,7 @@ import { SourceDiagram } from './source-diagram'
 import styles from './preset-home.module.css'
 
 const githubUrl = 'https://github.com/preset-cli/create-preset'
+const featureIcons = [Boxes, Zap, Terminal, Layers, SlidersHorizontal, KeyRound]
 
 export function PresetHome({
   config,
@@ -35,7 +37,7 @@ export function PresetHome({
 }) {
   const copy = homeCopy[entry.locale === 'zh' ? 'zh' : 'en']
   const locale = entry.locale === 'zh' ? 'zh' : 'en'
-  const examplesHref = `${locale === 'zh' ? '/zh' : ''}/examples`
+  const examplesHref = `${locale === 'zh' ? '/zh' : ''}/examples/variants`
   const home = createHomeData({ config, locale: entry.locale, source })
   const navigation = buildHeaderNavigation({
     config,
@@ -103,7 +105,7 @@ export function PresetHome({
                 <span className={styles.brandNote}>{locale === 'zh' ? '一份源码，按需生成' : 'One source. Your presets.'}</span>
               </div>
               <h1 id="home-title" className={styles.title}>
-                {locale === 'zh' ? <>模板只差几处，<br /><span>也要维护两份？</span></> : <>Similar templates.<br /><span>Separate copies?</span></>}
+                {locale === 'zh' ? <>模板只差几处，<br /><span>也要维护多份？ <span className="inline-block">不需要！</span></span></> : <>Similar templates.<br /><span>Separate copies? <span className="inline-block">No!</span></span></>}
               </h1>
               <p className={styles.description}>
                 {locale === 'zh'
@@ -111,7 +113,7 @@ export function PresetHome({
                   : 'Maintain shared code once. Describe the differences in a preset, then select files and apply changes when creating each project.'}
               </p>
               <div className="mt-7 flex flex-wrap items-center gap-3">
-                <Button asChild size="lg"><a href="#scenarios">{locale === 'zh' ? '看看文件怎么变' : 'See what changes'} <span aria-hidden="true">↓</span></a></Button>
+                <Button asChild size="lg"><a href="#scenarios">{locale === 'zh' ? '最佳实践' : 'Best practices'} <span aria-hidden="true">↓</span></a></Button>
                 <Button asChild variant="outline" size="lg"><Link href={home.primaryAction.href}>{home.primaryAction.label}</Link></Button>
               </div>
               <div className={styles.heroMeta}>
@@ -127,26 +129,35 @@ export function PresetHome({
         <div className="mx-auto w-11/12 max-w-6xl pb-12 md:pb-16">
           <HomeScenarios locale={locale} />
           <section
-            className="my-12 border-t border-border pt-10 md:my-16"
+            className="my-12 md:my-16"
             aria-label={copy.featuresLabel}
             data-docs-region="home-highlights"
           >
-            <ul className="grid grid-cols-1 gap-x-12 gap-y-8 sm:grid-cols-2 md:grid-cols-3">
-              {copy.features.map((feature) => (
-                <li
-                  key={feature.title}
-                  className="py-2"
-                >
-                  <div className="mb-2 flex items-center gap-4">
-                    <h2 className="text-balance text-base font-semibold">
-                      {feature.title}
-                    </h2>
-                  </div>
-                  <p className="text-pretty text-sm leading-6 text-muted-foreground">
-                    {feature.description}
-                  </p>
-                </li>
-              ))}
+            <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+              {copy.features.map((feature, index) => {
+                const Icon = featureIcons[index]
+                return (
+                  <li key={feature.title}>
+                    <Card className="h-full">
+                      <CardHeader>
+                        <div className="flex items-center gap-3">
+                          <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-700 dark:text-emerald-300">
+                            <Icon size={20} strokeWidth={1.5} aria-hidden="true" />
+                          </div>
+                          <h2 className="text-balance text-base font-semibold">
+                            {feature.title}
+                          </h2>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-pretty text-sm leading-6 text-muted-foreground">
+                          {feature.description}
+                        </p>
+                      </CardContent>
+                    </Card>
+                  </li>
+                )
+              })}
             </ul>
           </section>
 
