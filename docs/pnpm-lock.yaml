@@ -178,6 +178,9 @@ importers:
       '@blackwork/docs':
         specifier: ^0.6.0
         version: 0.6.0(blackwork@0.14.0(@bassist/utils@0.17.0)(@types/react@19.2.18)(clsx@2.1.1)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(tailwind-merge@3.6.0)(tailwindcss@4.3.3))(next@16.3.8(@types/node@24.13.3)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      '@blackwork/machine':
+        specifier: 0.2.2
+        version: 0.2.2(blackwork@0.14.0(@bassist/utils@0.17.0)(@types/react@19.2.18)(clsx@2.1.1)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(tailwind-merge@3.6.0)(tailwindcss@4.3.3))(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       '@blackwork/search':
         specifier: ^0.1.1
         version: 0.1.1

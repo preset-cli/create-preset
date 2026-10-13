@@ -16,6 +16,7 @@
   "dependencies": {
     "@bassist/utils": "^0.17.0",
     "@blackwork/docs": "^0.6.0",
+    "@blackwork/machine": "0.2.2",
     "@blackwork/search": "^0.1.1",
     "blackwork": "^0.14.0",
     "clsx": "^2.1.1",

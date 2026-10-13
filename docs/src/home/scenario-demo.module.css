@@ -199,17 +199,10 @@
 .green { background: #059669; }
 
 .command {
-  display: flex;
-  align-items: start;
-  gap: 1rem;
-  padding: 1rem 1.25rem;
+  min-width: 0;
+  padding-inline: 1.25rem;
   border-top: 1px solid hsl(var(--border));
-  background: hsl(var(--muted) / 0.4);
-  font: 0.75rem / 1.8 var(--font-mono);
 }
-
-.command > span { color: #059669; }
-.command pre { min-width: 0; overflow-x: auto; }
 
 .caption {
   display: flex;

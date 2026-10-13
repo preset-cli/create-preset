@@ -3,6 +3,7 @@ import { createHighlighter } from 'shiki'
 import fixtures from './fixtures.json'
 import { changedLines, sourceChange } from './changes'
 import type { ExampleFile, ExampleView } from './code-types'
+import { highlightCommand } from '@/mdx/command-highlight.server'
 
 let highlighter: ReturnType<typeof createHighlighter> | undefined
 
@@ -50,6 +51,7 @@ export const getExampleView = cache(async (id: keyof typeof fixtures): Promise<E
         id: preset.id,
         label: preset.label,
         target: preset.target,
+        command: await highlightCommand(`pnpm create preset init ${preset.target} --from ./presets/${preset.id}.json`),
         directory,
         source: await Promise.all(Object.entries(sourceFiles).map(async ([path, content]) => {
           const change = sourceChange(path, content, directory, outputFiles)
