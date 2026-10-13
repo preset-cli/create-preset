@@ -10,6 +10,10 @@ vi.mock('next/navigation', () => ({ usePathname }))
 
 describe('header navigation', () => {
   test.each([
+    ['/examples/variants', '/examples/variants'],
+    ['/zh/examples/skills', '/examples/variants'],
+    ['/en/examples/monorepo/', '/examples/variants'],
+    ['/zh/examples/file-changes', '/examples/variants'],
     ['/zh/guide/preset-configs', '/guide/preset-configs'],
     ['/en/guide/preset-configs/', '/guide/preset-configs'],
     ['/guide/preset-configs', '/guide/preset-configs'],

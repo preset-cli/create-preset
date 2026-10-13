@@ -1,26 +1,32 @@
 ---
 title: One template, different editions
-description: Keep one source and describe file differences in separate presets.
+description: Maintain shared code once and configure the differences between basic and team editions.
 order: 1
 ---
 
 # One template, different editions
 
-The basic edition does not need analytics; the team edition keeps it. The rest of the code is shared, yet maintaining two templates means fixing both copies.
+The basic edition does not need analytics; the team edition does. Everything else is the same. With a separate template for each, every shared bug needs fixing twice.
 
-Keep one complete source. Use a preset for each edition to describe what changes. The basic preset removes analytics and its entry-point references. The team preset keeps them. Generated projects remain independent.
+Keep the complete source, including analytics, and add a config that removes it for the basic edition. Below, `basic.json` removes the analytics file and its references in the entry point. `team.json` keeps them.
 
 <ExampleExplorer example="variants" />
 
-## What changes
+## Template differences
 
-- Both configs use the same `source`, selecting the repository's `starter` directory.
-- The basic preset excludes `src/analytics.ts` and uses `replace` to remove its import and call.
-- The team preset keeps the complete source. Switch editions and inspect `src/main.ts` in Output.
-- The generated `package.json` name follows the target directory.
+Both configs take files from `starter`. The basic edition adds two steps:
 
-Shared code is maintained once in the source repository. Edition-specific changes run during creation. Existing generated projects do not receive later source updates automatically.
+- `exclude` leaves out `src/analytics.ts`.
+- `replace` removes the import and call from `src/main.ts`, so the entry point no longer refers to the deleted file.
 
-`replace` matches exact text. If the source changes and that text disappears, creation fails until the preset is updated. Use this approach for small, explicit differences. The CLI does not analyze module references or convert TypeScript automatically.
+The team edition keeps both files. In each edition, the generated `package.json` name matches the target directory: `my-basic-app` or `my-team-app`.
 
-See [Preset Configs](/guide/preset-configs) for all operations.
+Shared fixes go into the source repository once. New projects use the selected preset when created; projects already generated need updating separately.
+
+## Text replacement rules
+
+`replace` matches exact text. After editing the entry point, check the config's `from` value too. Creation fails if that text can no longer be found.
+
+This works for small, explicit file differences. Any references that need removing must be listed in the config. The CLI does not analyze module references or convert TypeScript automatically.
+
+See [Preset Configs](/guide/preset-configs) for more operations.
