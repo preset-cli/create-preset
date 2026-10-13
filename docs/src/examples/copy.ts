@@ -1,6 +1,6 @@
 export const exampleCopy = {
   zh: {
-    title: '这些步骤，每个项目都要再做一遍？',
+    title: '工作场景不再繁琐',
     description: '从一个常见问题开始，看看源文件、Preset 配置和生成结果。',
     before: '手动维护',
     after: '使用 Create Preset',
@@ -34,7 +34,7 @@ export const exampleCopy = {
     ],
   },
   en: {
-    title: 'Repeating the same steps for every project?',
+    title: 'Less repetition in your workflow',
     description: 'Start with a familiar problem. Compare the source files, preset config, and generated output.',
     before: 'Manual upkeep',
     after: 'With Create Preset',
