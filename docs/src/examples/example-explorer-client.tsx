@@ -1,8 +1,13 @@
 'use client'
 
 import { useId, useState } from 'react'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from 'blackwork'
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+  Tabs, TabsContent, TabsList, TabsTrigger,
+} from 'blackwork'
 import type { ExampleFile, ExampleView } from './code-types'
+import { Callout } from '@/mdx/components/callout'
+import { CommandBlock } from '@/mdx/components/command-block'
 import { ChangeMark, CodeView } from './code-view'
 
 type Locale = 'en' | 'zh'
@@ -11,12 +16,14 @@ const labels = {
   zh: {
     source: '源文件', config: 'Preset 配置', output: '生成结果',
     files: '文件列表', edition: '生成版本', command: '创建命令',
-    note: '示例仓库为虚构地址。替换仓库地址，将配置保存到命令中的本地路径后再运行。生成结果是对应配置的静态演示。',
+    noteTitle: '示例说明',
+    note: '下方只演示文件变化，不会运行命令。试用前，先替换示例仓库地址，再把 JSON 保存到命令指定的路径。',
   },
   en: {
     source: 'Source', config: 'Preset config', output: 'Output',
     files: 'Files', edition: 'Edition', command: 'Create command',
-    note: 'Repository URLs are placeholders. Replace the repository URL and save the config at the local path used below before running. Output files are a static demonstration of the selected preset.',
+    noteTitle: 'Example note',
+    note: 'The files below show the source, config, and expected output; no commands run here. To try it locally, replace the example repository URL and save the JSON at the path in the command.',
   },
 }
 
@@ -64,7 +71,6 @@ export function ExampleExplorerClient({ data, locale }: { data: ExampleView; loc
   const [presetIndex, setPresetIndex] = useState(0)
   const preset = data.presets[presetIndex]
   const selectId = useId()
-  const command = `pnpm create preset init ${preset.target} --from ./presets/${preset.id}.json`
   const panels = [
     { id: 'source', title: copy.source, files: preset.source, root: data.repository },
     { id: 'config', title: copy.config, files: preset.config, root: 'presets' },
@@ -73,18 +79,26 @@ export function ExampleExplorerClient({ data, locale }: { data: ExampleView; loc
 
   return (
     <div data-preset-example="" className="not-prose my-8 min-w-0">
-      <p className="mb-4 text-sm leading-6 text-muted-foreground">{copy.note}</p>
+      <Callout title={copy.noteTitle}>{copy.note}</Callout>
       {data.presets.length > 1 && (
         <div className="mb-4 flex flex-wrap items-center gap-3 text-sm">
           <label htmlFor={selectId} className="font-medium">{copy.edition}</label>
-          <select
-            id={selectId}
+          <Select
             value={presetIndex}
-            onChange={(event) => setPresetIndex(Number(event.target.value))}
-            className="max-w-full rounded-md border border-border bg-background px-3 py-2 focus-visible:outline-2 focus-visible:outline-offset-2"
+            items={data.presets.map((item, index) => ({ value: index, label: item.label[locale] }))}
+            onValueChange={(value) => {
+              if (value !== null) setPresetIndex(value)
+            }}
           >
-            {data.presets.map((item, index) => <option key={item.id} value={index}>{item.label[locale]}</option>)}
-          </select>
+            <SelectTrigger id={selectId} className="w-auto min-w-36 max-w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent alignItemWithTrigger={false}>
+              {data.presets.map((item, index) => (
+                <SelectItem key={item.id} value={index}>{item.label[locale]}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       )}
       <Tabs defaultValue="source" className="min-w-0 gap-0 overflow-hidden rounded-xl border border-border">
@@ -100,7 +114,7 @@ export function ExampleExplorerClient({ data, locale }: { data: ExampleView; loc
         ))}
       </Tabs>
       <p className="mt-5 mb-2 text-sm font-medium">{copy.command}</p>
-      <pre tabIndex={0} aria-label={copy.command} className="overflow-x-auto rounded-lg bg-muted p-4 font-mono text-xs leading-6 sm:text-sm"><code>{command}</code></pre>
+      <CommandBlock key={preset.id} command={preset.command} locale={locale} />
     </div>
   )
 }

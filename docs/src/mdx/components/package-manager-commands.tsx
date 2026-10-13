@@ -1,6 +1,6 @@
-'use client'
-
 import { Tabs, TabsContent, TabsList, TabsTrigger } from 'blackwork'
+import { highlightCommand } from '../command-highlight.server'
+import { CommandBlock } from './command-block'
 
 const commands = {
   create: [
@@ -17,13 +17,18 @@ const commands = {
   ],
 } as const
 
-export function PackageManagerCommands({
+export async function PackageManagerCommands({
   mode = 'create',
   locale = 'en',
 }: {
   mode?: keyof typeof commands
   locale?: 'en' | 'zh'
 }) {
+  const highlightedCommands = await Promise.all(commands[mode].map(async (item) => ({
+    ...item,
+    highlighted: await highlightCommand(item.command),
+  })))
+
   return (
     <Tabs defaultValue="pnpm" className="not-prose my-4 min-w-0">
       <TabsList aria-label={locale === 'zh' ? '包管理器' : 'Package manager'}>
@@ -33,11 +38,9 @@ export function PackageManagerCommands({
           </TabsTrigger>
         ))}
       </TabsList>
-      {commands[mode].map(({ id, command }) => (
+      {highlightedCommands.map(({ id, highlighted }) => (
         <TabsContent key={id} value={id}>
-          <pre className="overflow-x-auto rounded-xl bg-muted px-6 py-5 text-sm leading-7">
-            <code>{command}</code>
-          </pre>
+          <CommandBlock command={highlighted} locale={locale} />
         </TabsContent>
       ))}
     </Tabs>

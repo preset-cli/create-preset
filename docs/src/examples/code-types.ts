@@ -1,3 +1,5 @@
+import type { HighlightedCommand } from '@/mdx/components/command-block'
+
 export type FileChange = 'unchanged' | 'modified' | 'added' | 'removed' | 'outside'
 
 export interface CodeToken {
@@ -17,6 +19,7 @@ export interface PresetView {
   id: string
   label: { en: string; zh: string }
   target: string
+  command: HighlightedCommand
   directory: string
   source: ExampleFile[]
   config: ExampleFile[]

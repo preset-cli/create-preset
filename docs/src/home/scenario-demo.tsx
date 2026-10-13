@@ -7,6 +7,7 @@ import { ArrowRight, FileCode2, FolderOpen, SlidersHorizontal } from 'lucide-rea
 import { exampleCopy } from '@/examples/copy'
 import type { ExampleFile, ExampleView, PresetView } from '@/examples/code-types'
 import { CodeView, ChangeMark } from '@/examples/code-view'
+import { CommandBlock } from '@/mdx/components/command-block'
 import styles from './scenario-demo.module.css'
 
 const ui = {
@@ -93,8 +94,7 @@ function Demonstration({ data, locale }: { data: ExampleView; locale: 'en' | 'zh
         <span><i className={styles.green} />{copy.outputHint}</span>
       </div>
       <div className={styles.command}>
-        <span aria-hidden="true">$</span>
-        <pre tabIndex={0} aria-label={locale === 'zh' ? '示例命令' : 'Example command'}><code>pnpm create preset init {preset.target} --from ./presets/{preset.id}.json</code></pre>
+        <CommandBlock key={preset.id} command={preset.command} locale={locale} />
       </div>
     </div>
   )
