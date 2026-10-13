@@ -9,7 +9,6 @@ import { DocsSiteLink } from './src/site/docs-link'
 import { headerNavigation } from './src/site/navigation'
 import { ShowcaseProject } from './src/showcase/showcase-project'
 import { ExampleExplorer } from './src/examples/example-explorer'
-import { ExampleList } from './src/examples/example-list'
 
 export const docsConfig = defineDocsConfig({
   content: docsContentConfig,
@@ -43,7 +42,6 @@ export const docsConfig = defineDocsConfig({
       PackageManagerCommands,
       ShowcaseProject,
       ExampleExplorer,
-      ExampleList,
     },
   },
   theme: {

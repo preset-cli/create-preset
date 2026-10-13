@@ -1,24 +1,27 @@
 ---
 title: 从 monorepo 提取子项目
-description: 选取子目录、排除内部文件，将 workspace 依赖换成独立项目可用的版本。
+description: 提取子目录，排除测试文件，并转换 workspace 依赖。
 order: 3
 ---
 
 # 从 monorepo 提取子项目
 
-文档模板放在 `apps/docs`，组件库放在 `packages/ui`。只想用文档模板，却要先克隆整个仓库，再手动整理目录和依赖。
+文档模板位于 `apps/docs`，依赖同一仓库中 `packages/ui` 提供的组件库。将文档模板用于独立项目时，需要排除内部测试文件，并将 `workspace:` 依赖换成已发布的版本。
 
-Preset 选取 `apps/docs`，排除模板内部测试文件，并将 `workspace:` 依赖替换为指定版本。
+示例配置选取 `apps/docs`，排除 `src/__tests__`，并指定组件库的依赖版本。
 
 <ExampleExplorer example="monorepo" locale="zh" />
 
-## 看看发生了什么
+## 子目录与文件排除
 
-- `source.directory` 选择 `apps/docs`，其中的文件直接成为新项目的内容。
-- `exclude` 中的路径相对于选中的模板目录，因此写 `src/__tests__`。
-- `packages/ui` 和根目录的 `pnpm-workspace.yaml` 不会复制到新项目。
-- `packageJson.resolveWorkspace` 启用依赖转换，`workspaceVersions` 将 `@example/ui` 固定为 `1.2.3`，跳过该包的 registry 查询。
+`source.directory` 设为 `apps/docs` 后，该目录的内容会复制到新项目根目录。`packages/ui` 和仓库根目录的 `pnpm-workspace.yaml` 不会复制。
 
-`@example/ui` 是演示名称。实际配置应使用已经发布、且当前环境有权限安装的包和版本。组件实现不会从 monorepo 自动打包进新项目。
+`exclude` 中的路径相对于选中的目录，因此测试目录配置为 `src/__tests__`，不包含 `apps/docs` 前缀。
 
-不指定固定版本时，CLI 通过 `npm view` 查询版本，沿用 npm 的 registry 配置。更多规则见[处理 workspace 依赖](/zh/guide/preset-configs#处理-workspace-依赖)。
+## workspace 依赖转换
+
+开启 `packageJson.resolveWorkspace`，再在 `workspaceVersions` 中指定 `@example/ui` 的版本为 `1.2.3`。生成后的 `package.json` 就会用这个版本替换 `workspace:*`，也无需为这个包查询 registry。
+
+`@example/ui` 只是示例名称，实际使用时要换成已发布、且当前环境能安装的包和版本。这里处理的是依赖版本，`packages/ui` 中的组件源码不会一起复制或打包。
+
+没有指定版本时，CLI 会通过 `npm view` 查询，使用 npm 当前的 registry 配置。详细规则见[处理 workspace 依赖](/zh/guide/preset-configs#处理-workspace-依赖)。

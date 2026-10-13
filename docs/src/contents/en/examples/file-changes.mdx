@@ -1,30 +1,30 @@
 ---
 title: Edit files during project creation
-description: Remove files, write documentation, replace text, and merge JSON during creation.
+description: Remove demo files, update the README, and change defaults while creating a project.
 order: 4
 ---
 
 # Edit files during project creation
 
-Every clone of a service starter needs the same cleanup: remove demo files, rewrite the README, change a default value, and delete the demo command from `package.json`.
-
-Describe these steps in a preset and apply them when generating the project.
+After cloning a service starter, there are often demo files to remove, a README to rewrite, defaults to change, and a demo command to delete from `package.json`. When the edits are the same each time, put them in a preset.
 
 <ExampleExplorer example="file-changes" />
 
-## Order of operations
+## Operation order
 
-1. `exclude` skips `demo.js` before copying.
-2. `write` replaces `README.md` with the entries in `lines`, one per line.
+1. `exclude` skips `demo.js` during copying, leaving it out of the new project.
+2. `write` rewrites `README.md`, with each entry in `lines` becoming one line in the file.
 3. `replace` changes `APP_LABEL=Starter` to `APP_LABEL=Team` in `.env.example`.
-4. `json` merges `package.json`. Setting `scripts.demo` to `null` removes that command while keeping `scripts.start`.
+4. `json` edits `package.json`. Setting `scripts.demo` to `null` removes that command and keeps `scripts.start`.
 
-Switch to Output and open each file to see the result.
+## Preview the creation plan
 
-## Preview an edited config
+Save the config as `presets/service.json`, then add `--dry-run` to see the planned operations:
 
 ```bash
 pnpm create preset init my-service --from ./presets/service.json --dry-run
 ```
 
-The preview lists the creation plan. It does not clone the repository or check whether replacement text exists. Run creation and inspect the generated files afterward. See [Preset Configs](/guide/preset-configs) for the full reference.
+This step does not download the repository, so it cannot check whether the original text in `replace` exists. After checking the plan, remove `--dry-run` to create the project and inspect the files.
+
+See [Preset Configs](/guide/preset-configs) for other fields.

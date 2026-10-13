@@ -2,16 +2,16 @@ import { docsContentConfig } from '../../content.config'
 
 export const headerNavigation = [
   {
-    href: '/examples',
-    label: { en: 'Examples', zh: '使用示例' },
-  },
-  {
     href: '/guide/getting-started',
     label: { en: 'Guide', zh: '指南' },
   },
   {
     href: '/guide/preset-configs',
     label: { en: 'Preset configs', zh: 'Preset 配置' },
+  },
+  {
+    href: '/examples/variants',
+    label: { en: 'Examples', zh: '使用示例' },
   },
   {
     href: '/showcase',
@@ -35,6 +35,8 @@ export const normalizeNavigationPath = (href: string) => {
 
 export const getCurrentHeaderHref = (pathname: string) => {
   const path = normalizeNavigationPath(pathname)
+  if (path.startsWith('/examples/')) return '/examples/variants'
+
   const matchingItem = headerNavigation
     .filter(({ href }) => href.startsWith('/'))
     .sort((a, b) => b.href.length - a.href.length)
