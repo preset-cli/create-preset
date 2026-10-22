@@ -63,12 +63,52 @@ Add `$schema` for editor completion and validation:
 `version` must be `1`. `source.repo` is required. `source.directory` selects a
 subdirectory inside the cloned repository and defaults to the repository root.
 
+## Select files with include and exclude
+
+`include` lists exact files or directories relative to `source.directory`. Directories include their descendants; paths are not globs. Omit `include` to select all source files. With both fields present, `exclude` takes precedence. A selected directory is not flattened in the output.
+
+```json
+{
+  "version": 1,
+  "source": {
+    "repo": "https://github.com/example/team-resources.git",
+    "directory": "skills"
+  },
+  "include": ["code-review", "testing"],
+  "exclude": ["testing/fixtures"]
+}
+```
+
+An empty or null `include`, a missing selected path, or a selection with no files after exclusions fails. Symbolic links and paths outside the source are rejected. When `include` is present, file operations must stay within that selection and cannot recreate excluded files. Without `include`, existing transformation behavior is unchanged.
+
+Repeat `--include` on `init` or `apply` to replace the entire config selection. Configured exclusions still apply. This option requires a JSON preset; it is not passed to official generators.
+
+```bash
+preset apply .agents/skills --from ./skills.json --include code-review --include writing
+```
+
+A static website can publish a base JSON config and turn checked items into repeated `--include` arguments. Department presets can keep their selections in JSON.
+
+## Add files to an existing project
+
+```bash
+preset apply .agents/skills --from ./skills.json --dry-run
+preset apply .agents/skills --from ./skills.json
+```
+
+`apply` accepts a local/remote JSON config or a registered private preset backed by a config. It adds missing files, skips identical files, and reports differing content or file types as conflicts before writing anything. On Unix, executable permission differences also count as conflicts. Unrelated files remain intact, and `package.json.name` is not automatically rewritten. Empty directories alone are not installed.
+
+The command prints JSON with `add`, `skip`, and `conflicts`; conflicts produce a nonzero exit status in both normal and dry-run modes. `apply` has no `--yes` or overwrite mode. It rejects symbolic links along destination paths and does not follow them when publishing files. It does not synchronize deletions or automatically update modified files.
+
+Unlike `init --dry-run`, `apply --dry-run` clones the source and runs configured transformations in temporary storage to compare actual files. It may query npm if workspace resolution is enabled, but does not create target directories or modify target files. Normal publication errors roll back this run's additions. Recovery failures report retained paths; forced termination or a system crash can leave partial additions. Avoid editing destination paths concurrently with an apply operation.
+
 ## Operations
 
 After selecting the source directory, Create Preset copies its files with
-`exclude` applied, then runs the remaining operations:
+`include` and `exclude` applied, then runs the remaining operations:
 
-- `exclude` skips repository paths before copying.
+- `include` selects exact source-relative files or directories; omission selects all.
+- `exclude` removes paths from that selection before copying.
 - `write` creates or replaces a UTF-8 text file from an array of lines.
 - `replace` replaces every exact text match in an existing UTF-8 file.
 - `json` applies a recursive merge patch to an existing JSON object. A `null`
@@ -149,7 +189,7 @@ in that case.
 The runtime enforces these boundaries:
 
 - remote and local config files are limited to 1 MiB;
-- config operation counts are limited to 1,000;
+- config operation counts (including include/exclude paths) are limited to 1,000;
 - unknown fields and unsupported versions are rejected;
 - paths must stay relative to the generated project;
 - source symlinks are rejected;

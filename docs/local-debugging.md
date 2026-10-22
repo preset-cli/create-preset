@@ -48,7 +48,7 @@ target/release/preset init demo --from vite --dry-run
 target/release/preset init demo --from ./preset.json --dry-run
 ```
 
-`--dry-run` prints the creation plan as JSON and does not run external commands
+`init --dry-run` prints the creation plan as JSON and does not run external commands
 or modify the target. Remote config URLs are fetched and validated. Unknown
 `--from` values fail immediately instead of starting an interactive fallback.
 
@@ -141,6 +141,22 @@ reset the package name. Test the public delivery path with an HTTPS URL:
 ```
 
 See [Preset configs](preset-configs.md) for the contract and limits.
+
+## Apply and selection checks
+
+```bash
+"$PRESET_BIN" apply .agents/skills --from ./skills.json --include code-review --dry-run
+"$PRESET_BIN" apply .agents/skills --from ./skills.json --include code-review
+```
+
+Run from a temporary project. Check that only the selected skill appears and an unrelated local file survives. Repeat the command: identical files should move from `add` to `skip`. Edit one installed file and repeat: the command must exit nonzero, report a conflict, and leave all target files intact. `apply --dry-run` downloads and materializes the preset in temporary storage but must not create a missing target or its parents.
+
+Automated CLI and transaction tests cover empty/missing selections, exclusion precedence, CLI overrides, symbolic links, conflicts, and rollback after partial publication:
+
+```bash
+cargo test --all-targets
+cargo clippy --all-targets -- -D warnings
+```
 
 ## Private preset test
 

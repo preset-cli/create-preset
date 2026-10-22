@@ -437,3 +437,217 @@ fn successful_exit_without_generated_files_restores_the_original_target() {
         "original"
     );
 }
+
+#[test]
+fn include_override_selects_exact_paths_and_exclude_wins() {
+    let fixture = Fixture::new();
+    let config = fixture.plan(json!({"include":["package.json"], "exclude":[".github/config"]}));
+    let output = fixture
+        .command()
+        .args([
+            "init",
+            "selected",
+            "--from",
+            config.to_str().unwrap(),
+            "--include",
+            "./README.md",
+            "--include",
+            ".github",
+            "--include",
+            "README.md",
+        ])
+        .output()
+        .unwrap();
+    success(&output);
+    let root = fixture.cwd.join("selected");
+    assert_eq!(
+        fs::read_to_string(root.join("README.md")).unwrap(),
+        "hello starter"
+    );
+    assert!(!root.join("package.json").exists());
+    assert!(!root.join(".github/config").exists());
+    assert!(!root.join("pnpm-lock.yaml").exists());
+}
+
+#[test]
+fn invalid_or_empty_selections_never_modify_existing_target() {
+    for extra in [
+        json!({"include":[]}),
+        json!({"include":null}),
+        json!({"include":["missing"]}),
+        json!({"include":["../escape"]}),
+        json!({"include":["."]}),
+        json!({"include":[".git/config"]}),
+        json!({"include":["README.md"],"exclude":["README.md"]}),
+        json!({"include":["README.md"],"write":[{"path":"other","lines":["escape"]}]}),
+        json!({"include":[".github"],"exclude":[".github/config"],"write":[{"path":".github/config","lines":["escape"]}]}),
+    ] {
+        let fixture = Fixture::new();
+        let config = fixture.plan(extra);
+        fs::write(fixture.cwd.join("original"), "keep").unwrap();
+        let output = fixture
+            .command()
+            .args(["init", ".", "--from", config.to_str().unwrap(), "--yes"])
+            .output()
+            .unwrap();
+        assert!(
+            !output.status.success(),
+            "unexpected success: {}",
+            String::from_utf8_lossy(&output.stdout)
+        );
+        assert_eq!(
+            fs::read_to_string(fixture.cwd.join("original")).unwrap(),
+            "keep"
+        );
+        assert!(config.exists());
+    }
+}
+
+#[test]
+fn apply_adds_files_skips_identical_and_preserves_unrelated_content() {
+    let fixture = Fixture::new();
+    let config = fixture.plan(json!({"include":["README.md", ".github", "package.json"]}));
+    fs::write(fixture.cwd.join("unrelated"), "local").unwrap();
+    for run in 0..2 {
+        let output = fixture
+            .command()
+            .args(["apply", ".", "--from", config.to_str().unwrap()])
+            .output()
+            .unwrap();
+        success(&output);
+        let result: Value = serde_json::from_slice(&output.stdout).unwrap();
+        assert_eq!(
+            result[if run == 0 { "add" } else { "skip" }]
+                .as_array()
+                .unwrap()
+                .len(),
+            3
+        );
+        assert!(result["conflicts"].as_array().unwrap().is_empty());
+    }
+    assert_eq!(
+        fs::read_to_string(fixture.cwd.join("unrelated")).unwrap(),
+        "local"
+    );
+    // apply 不以目标目录名重写 package.json。
+    assert_eq!(read_json(&fixture.cwd.join("package.json"))["name"], "old");
+    assert!(config.exists());
+    assert!(!fixture.cwd.join("pnpm-lock.yaml").exists());
+}
+
+#[test]
+fn apply_dry_run_checks_real_conflicts_without_creating_target_parents() {
+    let fixture = Fixture::new();
+    let config = fixture.plan(json!({"include":["README.md"]}));
+    let output = fixture
+        .command()
+        .args([
+            "apply",
+            "new/nested",
+            "--from",
+            config.to_str().unwrap(),
+            "--dry-run",
+        ])
+        .output()
+        .unwrap();
+    success(&output);
+    let result: Value = serde_json::from_slice(&output.stdout).unwrap();
+    assert_eq!(result["add"], json!(["README.md"]));
+    assert!(!fixture.cwd.join("new").exists());
+    fs::write(fixture.cwd.join("README.md"), "local edits").unwrap();
+    for dry_run in [true, false] {
+        let mut command = fixture.command();
+        command.args(["apply", ".", "--from", config.to_str().unwrap()]);
+        if dry_run {
+            command.arg("--dry-run");
+        }
+        let output = command.output().unwrap();
+        assert!(!output.status.success());
+        let result: Value = serde_json::from_slice(&output.stdout).unwrap();
+        assert_eq!(result["conflicts"][0]["path"], "README.md");
+        assert_eq!(
+            fs::read_to_string(fixture.cwd.join("README.md")).unwrap(),
+            "local edits"
+        );
+    }
+}
+
+#[test]
+fn apply_supports_registered_config_and_cli_selection_override() {
+    let fixture = Fixture::new();
+    let config = fixture.plan(json!({"include":["package.json"]}));
+    let catalog = fixture.cwd.join("catalog.json");
+    fs::write(
+        &catalog,
+        serde_json::to_vec(&json!([{"tech":"skills","name":"team-skills","config":config}]))
+            .unwrap(),
+    )
+    .unwrap();
+    success(
+        &fixture
+            .command()
+            .args(["config", "set", catalog.to_str().unwrap()])
+            .output()
+            .unwrap(),
+    );
+    let output = fixture
+        .command()
+        .args([
+            "apply",
+            "skills",
+            "--from",
+            "team-skills",
+            "--include",
+            "README.md",
+        ])
+        .output()
+        .unwrap();
+    success(&output);
+    assert!(fixture.cwd.join("skills/README.md").is_file());
+    assert!(!fixture.cwd.join("skills/package.json").exists());
+}
+
+#[test]
+fn refuses_apply_generators_and_include_on_generators() {
+    let fixture = Fixture::new();
+    for args in [
+        vec!["apply", "new", "--from", "vite"],
+        vec![
+            "init",
+            "new",
+            "--from",
+            "vite",
+            "--include",
+            "README.md",
+            "--yes",
+        ],
+        vec!["apply", "new", "--from", "vite", "--yes"],
+    ] {
+        assert!(!fixture
+            .command()
+            .args(args)
+            .output()
+            .unwrap()
+            .status
+            .success());
+        assert!(!fixture.cwd.join("new").exists());
+    }
+}
+
+#[cfg(unix)]
+#[test]
+fn apply_rejects_nested_target_symlinks_without_touching_their_destination() {
+    use std::os::unix::fs::symlink;
+    let fixture = Fixture::new();
+    let config = fixture.plan(json!({"include":[".github"]}));
+    let outside = fixture.temp.path().join("outside");
+    fs::create_dir(&outside).unwrap();
+    symlink(&outside, fixture.cwd.join(".github")).unwrap();
+    let output = fixture
+        .command()
+        .args(["apply", ".", "--from", config.to_str().unwrap()])
+        .output()
+        .unwrap();
+    assert!(!output.status.success());
+    assert_eq!(fs::read_dir(outside).unwrap().count(), 0);
+}

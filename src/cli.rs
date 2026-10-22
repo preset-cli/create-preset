@@ -3,7 +3,7 @@ use clap::{Parser, Subcommand};
 #[derive(Parser)]
 #[command(name = "preset")]
 #[command(args_conflicts_with_subcommands = true)]
-#[command(author, version, disable_version_flag = true, about = "Create projects with official generators and declarative presets.", long_about = None)]
+#[command(author, version, disable_version_flag = true, about = "Create projects and apply declarative presets.", long_about = None)]
 pub struct Cli {
     /// Output the version number
     #[arg(short = 'v', long = "version", action = clap::ArgAction::Version)]
@@ -28,6 +28,10 @@ pub enum Commands {
         #[arg(long = "from", conflicts_with = "template")]
         source: Option<String>,
 
+        /// Select a source-relative file or directory (repeatable; overrides config include)
+        #[arg(long, action = clap::ArgAction::Append, long_help = "Select an exact file or directory relative to source.directory. Repeat for multiple paths; directories include their descendants. Replaces the config include list, while exclude still takes precedence. JSON presets only; no glob patterns.")]
+        include: Vec<String>,
+
         /// Legacy alias for --from
         #[arg(long, hide = true)]
         template: Option<String>,
@@ -43,6 +47,27 @@ pub enum Commands {
         /// Replace existing target files without asking for confirmation
         #[arg(long)]
         yes: bool,
+    },
+
+    /// Add preset files to a project, preserving unrelated files and rejecting conflicts
+    #[command(
+        after_long_help = "Examples:\n  preset apply .agents/skills --from ./skills.json --include code-review --include testing\n  preset apply .agents/skills --from ./skills.json --dry-run\n\nMissing files are added; identical files are skipped. Conflicts fail before any target writes. No overwrite or --yes mode is available. Normal publication failures roll back this run's additions."
+    )]
+    Apply {
+        /// Target directory
+        target: String,
+
+        /// Local/remote preset.json or a registered private config name
+        #[arg(long = "from")]
+        source: String,
+
+        /// Select a source-relative file or directory (repeatable; overrides config include)
+        #[arg(long, action = clap::ArgAction::Append, long_help = "Select an exact file or directory relative to source.directory. Repeat for multiple paths; directories include their descendants. Replaces the config include list, while exclude still takes precedence. JSON presets only; no glob patterns.")]
+        include: Vec<String>,
+
+        /// Clone and generate in temporary storage to compare files without changing the target
+        #[arg(long)]
+        dry_run: bool,
     },
 
     /// Manage the private preset configuration

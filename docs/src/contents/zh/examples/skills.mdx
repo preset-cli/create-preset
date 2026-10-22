@@ -20,12 +20,16 @@ order: 2
 
 ## 已有 Skills 的处理
 
-**目标目录已有文件时，CLI 会询问是否替换整个目录，不会逐个合并 Skill。** 为保留项目中的现有内容，可以先生成到一个新的临时目录：
+使用 `apply` 追加需要的 Skills，保留目录中的现有内容：
 
 ```bash
-pnpm create preset init skills-preview --from ./presets/skills.json
+pnpm create preset apply .agents/skills --from ./presets/skills.json --include code-review --include writing
 ```
 
-检查生成内容后，将需要的 Skill 文件夹复制到项目中；同名文件需要比较后再决定是否覆盖。源仓库更新后，也可以通过临时目录比较新旧文件。Create Preset 不会自动同步更新，也不会把 Skills 链接到其他 agent 的目录。
+多个 `--include` 参数会整体覆盖配置中的选择清单，配置中的 `exclude` 继续生效。省略 `--include` 时使用配置清单；配置也没有清单时，选择全部源文件。
+
+添加 `--dry-run`，可以先在临时目录生成文件并比较。相同文件会跳过，内容、文件类型或 Unix 可执行权限不同则在写入前报告冲突。冲突需要手动处理，`apply` 不覆盖或删除已有文件。`init` 仍然会在确认后替换整个非空目标目录。
+
+Create Preset 不会自动同步更新，也不会把 Skills 链接到其他 agent 的目录。选择规则和回滚边界见 [Preset 配置](/zh/guide/preset-configs)。
 
 一份 Preset 只读取一个源仓库。如果常用 Skills 分散在多个仓库，需要先整理到同一个仓库，再用这份配置分发。

@@ -114,3 +114,24 @@ preserved.
 
 For a `config` entry, the referenced plan controls the checkout and file
 transformations. See [Preset configs](preset-configs.md).
+
+## Apply a team preset
+
+Register a config-backed preset for a reusable team selection:
+
+```json
+{
+  "tech": "skills",
+  "name": "team-skills",
+  "config": "./skills.json"
+}
+```
+
+After adding this entry to the bound manifest, use its name to add files to a project:
+
+```bash
+preset apply .agents/skills --from team-skills
+preset apply .agents/skills --from team-skills --include code-review --dry-run
+```
+
+`apply` accepts `config` entries, not bare `repo` entries or official generators. It preserves unrelated files, skips identical files, and stops on conflicts. Repeated `--include` arguments replace the config selection; exclusions remain active. See [Preset configs](preset-configs.md) for the JSON format and preview behavior.
