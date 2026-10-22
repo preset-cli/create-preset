@@ -43,6 +43,11 @@ fn validate_directories(path: &Path) -> Result<()> {
     let mut current = PathBuf::new();
     for component in path.components() {
         current.push(component);
+        // A Windows prefix (such as \\?\C:) is not a directory by itself.
+        // Wait for RootDir before inspecting it; still validate every directory.
+        if matches!(component, Component::Prefix(_)) {
+            continue;
+        }
         match fs::symlink_metadata(&current) {
             Ok(metadata) if !metadata.is_dir() || metadata.file_type().is_symlink() => {
                 return Err(PresetError::ValidationError(format!(
@@ -298,6 +303,36 @@ pub fn publish_additions(staged: &Path, root: &Path, plan: &ApplyPlan) -> Result
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn validates_canonical_directories_and_missing_children_without_writes() {
+        let temp = tempfile::tempdir().unwrap();
+        let base = fs::canonicalize(temp.path()).unwrap();
+        validate_directories(&base).unwrap();
+        let target = resolve_target(&base, "new/nested").unwrap();
+        assert_eq!(target, base.join("new").join("nested"));
+        assert!(!base.join("new").exists());
+
+        fs::write(base.join("file"), "keep").unwrap();
+        assert!(validate_directories(&base.join("file").join("nested")).is_err());
+        assert_eq!(fs::read_to_string(base.join("file")).unwrap(), "keep");
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn validates_windows_drive_roots_and_verbatim_paths() {
+        let temp = tempfile::tempdir().unwrap();
+        let canonical = fs::canonicalize(temp.path()).unwrap();
+        assert!(matches!(
+            canonical.components().next(),
+            Some(Component::Prefix(prefix)) if prefix.kind().is_verbatim()
+        ));
+        for path in [temp.path(), canonical.as_path()] {
+            validate_directories(path).unwrap();
+            let root = path.ancestors().last().unwrap();
+            validate_directories(root).unwrap();
+        }
+    }
 
     #[test]
     fn late_conflict_rolls_back_only_our_additions() {
