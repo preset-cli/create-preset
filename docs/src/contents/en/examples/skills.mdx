@@ -20,12 +20,16 @@ If the agent reads skills from another location, change the target path in the c
 
 ## Existing skills
 
-**For a nonempty target, the CLI asks to replace the entire directory. It does not merge individual skills.** Generate into a new temporary directory first:
+Use `apply` to add skills while preserving the existing directory:
 
 ```bash
-pnpm create preset init skills-preview --from ./presets/skills.json
+pnpm create preset apply .agents/skills --from ./presets/skills.json --include code-review --include writing
 ```
 
-Check the files, then copy the skill folders needed into the project. Compare same-name files before overwriting them. Later updates can be fetched and compared the same way. Create Preset does not sync updates automatically or link skills into other agents' directories.
+Repeated `--include` arguments replace the config's selection. Configured `exclude` paths still apply. Omit `--include` to use the config's list, or select all source files if it has no list.
+
+Add `--dry-run` to generate temporary files and compare them before installation. Identical files are skipped. Different content, file types, or Unix executable permissions are reported as conflicts before any target writes. Resolve conflicts manually; `apply` does not overwrite or delete existing files. `init` still replaces a nonempty target after confirmation.
+
+Create Preset does not sync updates automatically or link skills into other agents' directories. See [Preset configs](/guide/preset-configs) for selection and rollback details.
 
 Each preset reads one source repository. Skills from several repositories need collecting in one repository before this config can distribute them together.

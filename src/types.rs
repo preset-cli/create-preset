@@ -57,6 +57,12 @@ pub struct PresetPlan {
     pub _schema: Option<String>,
     pub version: u32,
     pub source: PresetSource,
+    #[serde(
+        default,
+        deserialize_with = "deserialize_include",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub include: Option<Vec<String>>,
     #[serde(default)]
     pub exclude: Vec<String>,
     #[serde(default)]
@@ -67,6 +73,15 @@ pub struct PresetPlan {
     pub json: Vec<JsonMerge>,
     #[serde(default)]
     pub package_json: PresetPackageJson,
+}
+
+fn deserialize_include<'de, D>(
+    deserializer: D,
+) -> std::result::Result<Option<Vec<String>>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    Vec::<String>::deserialize(deserializer).map(Some)
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]

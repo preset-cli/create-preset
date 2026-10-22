@@ -68,6 +68,27 @@ Each entry uses either `repo` or `config`. The relative path above starts from t
 
 For custom stack labels and colors, use the format with a `version` field described in the [private preset reference](https://github.com/preset-cli/create-preset/blob/main/docs/private-presets.md).
 
+## Apply a team preset
+
+Register a config-backed preset for a reusable team selection:
+
+```json
+{
+  "tech": "skills",
+  "name": "team-skills",
+  "config": "./skills.json"
+}
+```
+
+After adding this entry to the bound manifest, use its name to add files to a project:
+
+```bash
+preset apply .agents/skills --from team-skills
+preset apply .agents/skills --from team-skills --include code-review --dry-run
+```
+
+`apply` accepts `config` entries, not bare `repo` entries or official generators. It preserves unrelated files, skips identical files, and stops on conflicts. Repeated `--include` arguments replace the config selection; exclusions remain active. See [Preset configs](/guide/preset-configs) for the JSON format and preview behavior.
+
 ## Files kept in the new project
 
 When using `repo` directly, the CLI removes only the cloned `.git` metadata. Lockfiles, licenses, workflows, skills, and `AGENTS.md` files are preserved. If a `package.json` exists, its `name` is updated to match the new project name.

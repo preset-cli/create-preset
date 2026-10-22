@@ -92,7 +92,7 @@ package manager from the current npm user agent and falls back to npm.
 An unknown explicit `--from` value exits with an error; it never switches to
 interactive selection. Run `preset --list` to see registered IDs.
 
-`--dry-run` prints a JSON creation plan without cloning repositories, running
+`init --dry-run` prints a JSON creation plan without cloning repositories, running
 generators, resolving npm versions, or changing project files. Remote config
 URLs are still fetched and validated. `--yes` skips only the confirmation for
 replacing existing target files; official generators keep their own prompts.
@@ -100,6 +100,17 @@ replacing existing target files; official generators keep their own prompts.
 Private presets are generated in a temporary directory before replacing the
 target. Original target files are backed up while an official generator runs
 and restored if it fails or exits without creating a project.
+
+## Apply presets to existing projects
+
+```bash
+preset apply .agents/skills --from https://example.com/skills.json --include code-review --include testing
+preset apply .agents/skills --from ./skills.json --dry-run
+```
+
+`apply` adds missing files, skips identical files, and fails on conflicts before writing. It preserves unrelated files and does not automatically rewrite `package.json.name`. It accepts JSON presets, including registered private configs. `--include` is repeatable on both `init` and `apply`, replaces the config's `include` list, and keeps configured exclusions active.
+
+`apply --dry-run` generates temporary files to report real additions and conflicts, so it clones the source and may resolve workspace dependencies. `init --dry-run` remains a plan-only preview. Neither changes target files. See [Preset configs](docs/preset-configs.md) for validation and rollback limits.
 
 ## Official generators
 
@@ -145,7 +156,7 @@ starter into a new project:
 preset init my-docs --from https://example.com/preset.json
 ```
 
-Supported operations include selecting a monorepo directory, excluding files,
+Supported operations include selecting a monorepo directory, including or excluding files,
 writing files, replacing text, merging JSON, and resolving `workspace:`
 dependencies. See [Preset configs](docs/preset-configs.md) and the published
 [schema](https://preset.js.org/schema/preset.schema.json).

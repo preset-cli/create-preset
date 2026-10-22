@@ -1,3 +1,4 @@
+mod apply;
 mod catalog;
 mod cli;
 mod commands;
@@ -43,11 +44,28 @@ fn run() -> Result<()> {
             app_name,
             source,
             template,
+            include,
             package_manager,
             dry_run,
             yes,
         }) => {
-            commands::init_command(app_name, source, template, package_manager, dry_run, yes)?;
+            commands::init_command(
+                app_name,
+                source,
+                template,
+                package_manager,
+                dry_run,
+                yes,
+                include,
+            )?;
+        }
+        Some(Commands::Apply {
+            target,
+            source,
+            include,
+            dry_run,
+        }) => {
+            commands::apply::apply_command(target, source, include, dry_run)?;
         }
         Some(Commands::Config { action }) => {
             commands::config_command(action)?;
@@ -57,7 +75,7 @@ fn run() -> Result<()> {
         }
         None => {
             // Default to init command
-            commands::init_command(None, None, None, None, false, false)?;
+            commands::init_command(None, None, None, None, false, false, Vec::new())?;
         }
     }
 

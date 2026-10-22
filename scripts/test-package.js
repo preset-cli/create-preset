@@ -91,7 +91,30 @@ try {
   const preview = JSON.parse(run(process.execPath, [wrapper, 'init', 'demo', '--from', 'vite', '--dry-run'], consumer));
   assert.strictEqual(preview.source.id, 'vite');
   assert(!fs.existsSync(path.join(consumer, 'demo')));
-  console.log('Package smoke passed: artifact permissions, tarball contents, both installed commands, list and dry-run.');
+  const source = path.join(temporary, 'skill-source');
+  fs.mkdirSync(path.join(source, 'skills', 'review'), { recursive: true });
+  fs.mkdirSync(path.join(source, 'skills', 'writing'), { recursive: true });
+  fs.writeFileSync(path.join(source, 'skills', 'review', 'SKILL.md'), 'review');
+  fs.writeFileSync(path.join(source, 'skills', 'writing', 'SKILL.md'), 'writing');
+  run('git', ['init', '--quiet'], source);
+  run('git', ['add', '.'], source);
+  run('git', ['-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.com', 'commit', '--quiet', '-m', 'fixture'], source);
+  const config = path.join(consumer, 'skills.json');
+  fs.writeFileSync(config, JSON.stringify({
+    version: 1,
+    source: { repo: require('url').pathToFileURL(source).href, directory: 'skills' },
+    include: ['writing'],
+  }));
+  const args = [wrapper, 'apply', '.agents/skills', '--from', config, '--include', 'review'];
+  const applyPreview = JSON.parse(run(process.execPath, [...args, '--dry-run'], consumer));
+  assert.strictEqual(applyPreview.add.length, 1);
+  assert(!fs.existsSync(path.join(consumer, '.agents')));
+  run(process.execPath, args, consumer);
+  assert.strictEqual(fs.readFileSync(path.join(consumer, '.agents/skills/review/SKILL.md'), 'utf8'), 'review');
+  assert(!fs.existsSync(path.join(consumer, '.agents/skills/writing')));
+  const repeated = JSON.parse(run(process.execPath, args, consumer));
+  assert.strictEqual(repeated.skip.length, 1);
+  console.log('Package smoke passed: artifact permissions, tarball contents, installed commands, include selection and repeatable apply.');
 } finally {
   fs.rmSync(temporary, { recursive: true, force: true });
 }

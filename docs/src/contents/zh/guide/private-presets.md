@@ -68,6 +68,27 @@ preset config remove
 
 需要自定义技术栈名称和颜色时，使用带 `version` 字段的配置格式，详见[私有 Preset 配置说明](https://github.com/preset-cli/create-preset/blob/main/docs/private-presets.md)。
 
+## 应用团队套餐
+
+可以注册一个引用配置文件的团队套餐：
+
+```json
+{
+  "tech": "skills",
+  "name": "team-skills",
+  "config": "./skills.json"
+}
+```
+
+将该条目加入已绑定的清单后，按名称向项目追加文件：
+
+```bash
+preset apply .agents/skills --from team-skills
+preset apply .agents/skills --from team-skills --include code-review --dry-run
+```
+
+`apply` 接受 `config` 条目，不接受仅配置 `repo` 的条目或官方生成器。无关文件保持原样，相同文件跳过，遇到冲突时停止。多个 `--include` 参数会整体覆盖配置中的选择清单，排除规则继续生效。JSON 格式和预览行为见 [Preset 配置](/zh/guide/preset-configs)。
+
 ## 创建后保留哪些文件
 
 直接使用 `repo` 创建时，CLI 只删除克隆得到的 `.git` 元数据，锁文件、许可证、工作流、skills 和 `AGENTS.md` 都会保留。如果存在 `package.json`，其中的 `name` 会更新为新项目名称。

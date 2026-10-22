@@ -79,6 +79,16 @@ preset init my-docs --from ./preset.json --yes
 
 `--yes` 只跳过 Create Preset 的替换确认，官方脚手架仍保留自己的提问。
 
+## 向已有项目追加文件
+
+使用 JSON 配置运行 `apply`，保留无关文件，遇到冲突时停止：
+
+```bash
+preset apply .agents/skills --from ./skills.json --include code-review --include testing
+```
+
+添加 `--dry-run` 可比较真实生成文件而不修改目标。这种预览会在临时目录克隆源仓库。选择和冲突规则见 [Preset 配置](/zh/guide/preset-configs)。
+
 ## 切换语言
 
 Create Preset 默认跟随系统语言，支持英文、简体中文、繁体中文和日文。用 `PRESET_LANG` 指定语言，例如在 macOS 或 Linux 中切换为日文：

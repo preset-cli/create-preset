@@ -111,7 +111,15 @@ pub fn materialize_preset_plan(plan: &PresetPlan, target: &Path) -> Result<()> {
     download_repo(&plan.source.repo, &checkout)?;
 
     let directory = safe_relative_path(&plan.source.directory, "source directory", true)?;
-    let source = checkout.join(directory);
+    let mut source = checkout.clone();
+    for component in directory.components() {
+        source.push(component);
+        if fs::symlink_metadata(&source)?.file_type().is_symlink() {
+            return Err(PresetError::ValidationError(
+                "Source directory cannot traverse symbolic links".to_string(),
+            ));
+        }
+    }
     if !source.is_dir() {
         return Err(PresetError::ValidationError(format!(
             "Preset source directory does not exist: {}",
@@ -126,12 +134,7 @@ pub fn materialize_preset_plan(plan: &PresetPlan, target: &Path) -> Result<()> {
         ));
     }
 
-    let excludes = plan
-        .exclude
-        .iter()
-        .map(|path| safe_relative_path(path, "excluded path", false))
-        .collect::<Result<Vec<_>>>()?;
-    copy_filtered(&source_root, target, Path::new(""), &excludes)?;
+    copy_selection(&source_root, target, plan)?;
     apply_writes(target, &plan.write)?;
     apply_replacements(target, &plan.replace)?;
     apply_json_merges(target, &plan.json)?;
@@ -166,8 +169,11 @@ fn validate_plan(plan: &PresetPlan, remote: bool) -> Result<()> {
             "Remote preset configs must use an HTTP(S) repository URL".to_string(),
         ));
     }
-    let operation_count =
-        plan.exclude.len() + plan.write.len() + plan.replace.len() + plan.json.len();
+    let operation_count = plan.include.as_ref().map_or(0, Vec::len)
+        + plan.exclude.len()
+        + plan.write.len()
+        + plan.replace.len()
+        + plan.json.len();
     if operation_count > MAX_OPERATIONS {
         return Err(PresetError::ValidationError(format!(
             "Preset config exceeds the {} operation limit",
@@ -175,6 +181,40 @@ fn validate_plan(plan: &PresetPlan, remote: bool) -> Result<()> {
         )));
     }
     safe_relative_path(&plan.source.directory, "source directory", true)?;
+    if let Some(includes) = &plan.include {
+        if includes.is_empty() {
+            return Err(PresetError::ValidationError(
+                "Preset include cannot be empty".to_string(),
+            ));
+        }
+        let includes = includes
+            .iter()
+            .map(|path| safe_relative_path(path, "included path", false))
+            .collect::<Result<Vec<_>>>()?;
+        let excludes = plan
+            .exclude
+            .iter()
+            .map(|path| safe_relative_path(path, "excluded path", false))
+            .collect::<Result<Vec<_>>>()?;
+        // 显式选区不能被后续文件操作绕过，也不能重新写入已排除的文件。
+        for path in plan
+            .write
+            .iter()
+            .map(|item| &item.path)
+            .chain(plan.replace.iter().map(|item| &item.path))
+            .chain(plan.json.iter().map(|item| &item.path))
+        {
+            let path = safe_relative_path(path, "operation path", false)?;
+            if !includes.iter().any(|included| path.starts_with(included))
+                || excludes.iter().any(|excluded| path.starts_with(excluded))
+            {
+                return Err(PresetError::ValidationError(format!(
+                    "Preset operation is outside the included selection: {}",
+                    path.display()
+                )));
+            }
+        }
+    }
     for path in &plan.exclude {
         safe_relative_path(path, "excluded path", false)?;
     }
@@ -211,7 +251,17 @@ fn validate_plan(plan: &PresetPlan, remote: bool) -> Result<()> {
 
 fn safe_relative_path(value: &str, label: &str, allow_empty: bool) -> Result<PathBuf> {
     let path = Path::new(value);
-    if (!allow_empty && value.trim().is_empty())
+    if (!allow_empty
+        && (value.trim().is_empty()
+            || !path
+                .components()
+                .any(|part| matches!(part, Component::Normal(_)))))
+        || value.contains('\\')
+        || value.contains(':')
+        || value.contains('\0')
+        || path
+            .components()
+            .any(|part| matches!(part, Component::Normal(name) if name.to_string_lossy().trim_end_matches(['.', ' ']).eq_ignore_ascii_case(".git")))
         || value.len() > 512
         || path.is_absolute()
         || path.components().any(|component| {
@@ -226,41 +276,124 @@ fn safe_relative_path(value: &str, label: &str, allow_empty: bool) -> Result<Pat
             label, value
         )));
     }
-    Ok(path.to_path_buf())
+    Ok(path
+        .components()
+        .filter(|part| !matches!(part, Component::CurDir))
+        .collect())
+}
+
+pub fn override_include(plan: &mut PresetPlan, include: Vec<String>) -> Result<()> {
+    if !include.is_empty() {
+        plan.include = Some(include);
+    }
+    // 来源已经验证；此处重新验证 CLI 覆盖后的路径和操作总数。
+    validate_plan(plan, false)
+}
+
+fn copy_selection(source: &Path, target: &Path, plan: &PresetPlan) -> Result<()> {
+    let excludes = plan
+        .exclude
+        .iter()
+        .map(|path| safe_relative_path(path, "excluded path", false))
+        .collect::<Result<Vec<_>>>()?;
+    let includes = plan
+        .include
+        .as_ref()
+        .map(|paths| {
+            paths
+                .iter()
+                .map(|path| safe_relative_path(path, "included path", false))
+                .collect::<Result<Vec<_>>>()
+        })
+        .transpose()?;
+    if let Some(paths) = &includes {
+        for path in paths {
+            let mut current = source.to_path_buf();
+            for component in path.components() {
+                current.push(component);
+                let metadata = fs::symlink_metadata(&current).map_err(|error| {
+                    PresetError::ValidationError(format!(
+                        "Cannot read included path {}: {}",
+                        path.display(),
+                        error
+                    ))
+                })?;
+                if metadata.file_type().is_symlink() {
+                    return Err(PresetError::ValidationError(format!(
+                        "Included paths cannot traverse symbolic links: {}",
+                        path.display()
+                    )));
+                }
+            }
+        }
+    }
+    let copied = copy_filtered(
+        source,
+        target,
+        Path::new(""),
+        includes.as_deref(),
+        &excludes,
+    )?;
+    if includes.is_some() && copied == 0 {
+        return Err(PresetError::ValidationError(
+            "Preset selection contains no files after exclusions".to_string(),
+        ));
+    }
+    Ok(())
 }
 
 fn copy_filtered(
     source: &Path,
     target: &Path,
     relative: &Path,
+    includes: Option<&[PathBuf]>,
     excludes: &[PathBuf],
-) -> Result<()> {
+) -> Result<usize> {
     fs::create_dir_all(target)?;
+    let mut copied = 0;
     for entry in fs::read_dir(source)? {
         let entry = entry?;
         let child_relative = relative.join(entry.file_name());
-        if child_relative == Path::new(".git")
+        if entry
+            .file_name()
+            .to_string_lossy()
+            .trim_end_matches(['.', ' '])
+            .eq_ignore_ascii_case(".git")
             || excludes
                 .iter()
-                .any(|excluded| child_relative == *excluded || child_relative.starts_with(excluded))
+                .any(|excluded| child_relative.starts_with(excluded))
         {
+            continue;
+        }
+        let selected =
+            includes.is_none_or(|paths| paths.iter().any(|path| child_relative.starts_with(path)));
+        let ancestor = includes
+            .is_some_and(|paths| paths.iter().any(|path| path.starts_with(&child_relative)));
+        if !selected && !ancestor {
             continue;
         }
         let source_path = entry.path();
         let target_path = target.join(entry.file_name());
         let file_type = entry.file_type()?;
         if file_type.is_dir() {
-            copy_filtered(&source_path, &target_path, &child_relative, excludes)?;
-        } else if file_type.is_file() {
+            copied += copy_filtered(
+                &source_path,
+                &target_path,
+                &child_relative,
+                includes,
+                excludes,
+            )?;
+        } else if file_type.is_file() && selected {
             fs::copy(source_path, target_path)?;
+            copied += 1;
         } else {
             return Err(PresetError::ValidationError(format!(
-                "Preset sources cannot contain symbolic links: {}",
+                "Preset sources must contain only regular files and directories: {}",
                 child_relative.display()
             )));
         }
     }
-    Ok(())
+    Ok(copied)
 }
 
 fn apply_replacements(target: &Path, replacements: &[crate::types::TextReplacement]) -> Result<()> {
@@ -458,7 +591,7 @@ mod tests {
         fs::write(source.join("README.md"), "hello starter").unwrap();
         fs::write(source.join("cache/generated"), "skip").unwrap();
         let excludes = vec![PathBuf::from("cache")];
-        copy_filtered(&source, &target, Path::new(""), &excludes).unwrap();
+        copy_filtered(&source, &target, Path::new(""), None, &excludes).unwrap();
         apply_replacements(
             &target,
             &[TextReplacement {
@@ -553,6 +686,7 @@ mod tests {
                 repo: "https://example.com/repo".to_string(),
                 directory: "../private".to_string(),
             },
+            include: None,
             exclude: Vec::new(),
             write: Vec::new(),
             replace: Vec::new(),
@@ -571,6 +705,7 @@ mod tests {
                 repo: "file:///tmp/repo".to_string(),
                 directory: String::new(),
             },
+            include: None,
             exclude: Vec::new(),
             write: Vec::new(),
             replace: Vec::new(),
@@ -589,6 +724,7 @@ mod tests {
                 repo: "http://192.168.1.10/starter.git".to_string(),
                 directory: String::new(),
             },
+            include: None,
             exclude: Vec::new(),
             write: Vec::new(),
             replace: Vec::new(),
@@ -596,5 +732,69 @@ mod tests {
             package_json: PresetPackageJson::default(),
         };
         assert!(validate_plan(&plan, true).is_ok());
+    }
+    #[test]
+    fn directory_selection_excludes_descendants_and_ignores_new_siblings() {
+        let temporary = tempfile::tempdir().unwrap();
+        let source = temporary.path().join("source");
+        let target = temporary.path().join("target");
+        for name in ["review", "review-extra", "new-skill"] {
+            fs::create_dir_all(source.join(name)).unwrap();
+            fs::write(source.join(name).join("SKILL.md"), name).unwrap();
+        }
+        fs::create_dir(source.join("review/tests")).unwrap();
+        fs::write(source.join("review/tests/case"), "excluded").unwrap();
+        let plan: PresetPlan = serde_json::from_value(json!({
+            "version":1, "source":{"repo":"https://example.com/repo"},
+            "include":["review", "review/SKILL.md"], "exclude":["./review/tests"]
+        }))
+        .unwrap();
+        copy_selection(&source, &target, &plan).unwrap();
+        assert!(target.join("review/SKILL.md").is_file());
+        assert!(!target.join("review/tests").exists());
+        assert!(!target.join("review-extra").exists());
+        assert!(!target.join("new-skill").exists());
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn selected_source_symlinks_are_rejected_even_when_pointing_inside_source() {
+        use std::os::unix::fs::symlink;
+        let temporary = tempfile::tempdir().unwrap();
+        let source = temporary.path().join("source");
+        let target = temporary.path().join("target");
+        fs::create_dir_all(source.join("real")).unwrap();
+        fs::write(source.join("real/SKILL.md"), "content").unwrap();
+        symlink("real", source.join("linked")).unwrap();
+        let plan: PresetPlan = serde_json::from_value(json!({
+            "version":1, "source":{"repo":"https://example.com/repo"}, "include":["linked/SKILL.md"]
+        }))
+        .unwrap();
+        assert!(copy_selection(&source, &target, &plan).is_err());
+        assert!(!target.exists());
+    }
+
+    #[test]
+    fn include_overrides_are_validated_and_count_toward_operation_limit() {
+        let base: PresetPlan = serde_json::from_value(json!({
+            "version":1, "source":{"repo":"https://example.com/repo"}
+        }))
+        .unwrap();
+        for path in [
+            "",
+            ".",
+            "../escape",
+            "/absolute",
+            "C:/windows",
+            "a\\b",
+            ".GIT/config",
+        ] {
+            assert!(
+                override_include(&mut base.clone(), vec![path.to_string()]).is_err(),
+                "{}",
+                path
+            );
+        }
+        assert!(override_include(&mut base.clone(), vec!["file".to_string(); 1001]).is_err());
     }
 }

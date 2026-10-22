@@ -79,6 +79,16 @@ preset init my-docs --from ./preset.json --yes
 
 `--yes` skips only Create Preset's replacement confirmation. Official generators keep their own prompts.
 
+## Add files to an existing project
+
+Use a JSON preset with `apply` to preserve unrelated files and stop on conflicts:
+
+```bash
+preset apply .agents/skills --from ./skills.json --include code-review --include testing
+```
+
+Add `--dry-run` to compare actual generated files without modifying the target. This preview clones the source into temporary storage. See [Preset configs](/guide/preset-configs) for selection and conflict rules.
+
 ## Change the language
 
 Create Preset follows the system language and supports English, Simplified Chinese, Traditional Chinese, and Japanese. Set `PRESET_LANG` to choose a language explicitly. For example, switch to Japanese in a macOS or Linux terminal:

@@ -5,7 +5,7 @@ use crate::download::download_repo;
 use crate::error::{PresetError, Result};
 use crate::generator::{generator_arguments, run_generator};
 use crate::i18n::{format_message, generator_name, messages};
-use crate::preset::{load_preset_plan, materialize_preset_plan};
+use crate::preset::{load_preset_plan, materialize_preset_plan, override_include};
 use crate::target::{staging_directory, validate_target, TargetTransaction};
 use crate::types::{GeneratorConfig, PackageManager, PresetPlan, StarterChoice, TechStack};
 use crate::ui::{dialoguer_error, spinner};
@@ -17,7 +17,7 @@ use dialoguer::{Confirm, Input, Select};
 use serde_json::{json, Value};
 use std::path::{Path, PathBuf};
 
-enum CreationSource {
+pub(super) enum CreationSource {
     Official(GeneratorConfig),
     Repository(String),
     Config(PresetPlan),
@@ -47,6 +47,7 @@ pub fn init_command(
     package_manager: Option<PackageManager>,
     dry_run: bool,
     yes: bool,
+    include: Vec<String>,
 ) -> Result<()> {
     if !dry_run {
         display_welcome();
@@ -59,25 +60,17 @@ pub fn init_command(
         None
     };
     // Resolve and validate local configs before asking to replace their directory.
-    let creation = if let Some(config) = requested
-        .as_deref()
-        .filter(|value| is_preset_config_reference(value))
-    {
-        CreationSource::Config(load_config(config)?)
-    } else {
-        match choose_starter(requested.as_deref(), &registered_catalog()?)? {
-            StarterChoice::Official(generator) => CreationSource::Official(generator),
-            StarterChoice::Private(preset) => match (preset.repo, preset.config) {
-                (_, Some(config)) => CreationSource::Config(load_config(&config)?),
-                (Some(repo), None) => CreationSource::Repository(repo),
-                (None, None) => {
-                    return Err(PresetError::ConfigError(
-                        "Private preset has no source".to_string(),
-                    ))
-                }
-            },
+    let mut creation = resolve_creation_source(requested.as_deref())?;
+    if !include.is_empty() {
+        match &mut creation {
+            CreationSource::Config(plan) => override_include(plan, include)?,
+            _ => {
+                return Err(PresetError::ValidationError(
+                    "--include requires a preset JSON config".to_string(),
+                ))
+            }
         }
-    };
+    }
     let target_dir = match target_dir {
         Some(target) => target,
         None => prompt_target_dir(app_name)?,
@@ -137,6 +130,23 @@ pub fn init_command(
         }
     }
     Ok(())
+}
+
+pub(super) fn resolve_creation_source(requested: Option<&str>) -> Result<CreationSource> {
+    if let Some(config) = requested.filter(|value| is_preset_config_reference(value)) {
+        Ok(CreationSource::Config(load_config(config)?))
+    } else {
+        match choose_starter(requested, &registered_catalog()?)? {
+            StarterChoice::Official(generator) => Ok(CreationSource::Official(generator)),
+            StarterChoice::Private(preset) => match (preset.repo, preset.config) {
+                (_, Some(config)) => Ok(CreationSource::Config(load_config(&config)?)),
+                (Some(repo), None) => Ok(CreationSource::Repository(repo)),
+                (None, None) => Err(PresetError::ConfigError(
+                    "Private preset has no source".to_string(),
+                )),
+            },
+        }
+    }
 }
 
 fn load_config(reference: &str) -> Result<PresetPlan> {
