@@ -1,5 +1,17 @@
 ## Unreleased
 
+## [1.1.0](https://github.com/preset-cli/create-preset/releases/tag/v1.1.0) (2026-10-22)
+
+<!-- release-notes:commits -->
+
+### Features
+
+* add preset include filters and safe apply command ([07718db](https://github.com/preset-cli/create-preset/commit/07718db163b2a1248683dcfe976c4f8c710ace43))
+
+### Bug Fixes
+
+* handle Windows prefixes in apply path validation ([0929437](https://github.com/preset-cli/create-preset/commit/092943723b67912cc8c4ddfe9cae19a4a674de1e))
+
 ## [1.0.1](https://github.com/preset-cli/create-preset/releases/tag/v1.0.1) (2026-10-06)
 
 <!-- release-notes:commits -->

@@ -194,7 +194,7 @@ dependencies = [
 
 [[package]]
 name = "create-preset"
-version = "1.0.1"
+version = "1.1.0"
 dependencies = [
  "clap",
  "console",
