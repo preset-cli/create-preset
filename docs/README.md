@@ -26,6 +26,9 @@ pnpm build
 pnpm start
 ```
 
+Keep tests in a nearby `__tests__/` directory, such as
+`src/site/__tests__/social-metadata.test.ts`, rather than beside production files.
+
 `pnpm build` writes the static site and Pagefind search index to `.next-static`.
 Development and production builds copy `../schema/preset.schema.json` into the
 public site, so the CLI and website share one schema source.

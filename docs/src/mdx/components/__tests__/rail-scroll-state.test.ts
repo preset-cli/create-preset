@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { getDocsRailFadeState } from './rail-scroll-state'
+import { getDocsRailFadeState } from '../rail-scroll-state'
 
 describe('getDocsRailFadeState', () => {
   test('hides both fades when the rail does not overflow', () => {

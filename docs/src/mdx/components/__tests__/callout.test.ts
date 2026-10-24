@@ -1,7 +1,7 @@
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, test } from 'vitest'
-import { Callout } from './callout'
+import { Callout } from '../callout'
 
 describe('Callout', () => {
   test('renders through the shared alert component', () => {
