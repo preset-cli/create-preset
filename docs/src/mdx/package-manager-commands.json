@@ -1,0 +1,14 @@
+{
+  "create": [
+    { "id": "pnpm", "label": "pnpm", "command": "pnpm create preset" },
+    { "id": "npm", "label": "npm", "command": "npm create preset" },
+    { "id": "yarn", "label": "Yarn", "command": "yarn create preset" },
+    { "id": "bun", "label": "Bun", "command": "bun create preset" }
+  ],
+  "install": [
+    { "id": "pnpm", "label": "pnpm", "command": "pnpm add -g create-preset" },
+    { "id": "npm", "label": "npm", "command": "npm install -g create-preset" },
+    { "id": "yarn", "label": "Yarn Classic", "command": "yarn global add create-preset" },
+    { "id": "bun", "label": "Bun", "command": "bun add -g create-preset" }
+  ]
+}

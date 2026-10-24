@@ -1,5 +1,7 @@
 'use client'
 
+import { getMessages, type Messages } from '@/locales'
+
 import {
   Button,
   QuickSearchDialog,
@@ -14,33 +16,7 @@ import { cn } from '@/utils/class-name'
 import { useDocsSearch } from './use-docs-search'
 import type { DocsThemeHeaderActionsProps } from '@blackwork/docs/theme'
 
-const SEARCH_COPY = {
-  en: {
-    ariaLabel: 'Search docs',
-    closeLabel: 'Close search',
-    emptyNoMatch: 'No matching pages found in this locale.',
-    inputPlaceholder: 'Search docs...',
-    loading: 'Searching docs...',
-    minQuery: 'Type at least 2 characters to search the docs.',
-    shortLabel: 'Search docs',
-    triggerLabel: 'Search docs...',
-  },
-  zh: {
-    ariaLabel: '搜索文档',
-    closeLabel: '关闭搜索',
-    emptyNoMatch: '当前语言下没有匹配结果。',
-    inputPlaceholder: '搜索文档...',
-    loading: '正在搜索文档...',
-    minQuery: '至少输入 2 个字符后开始搜索。',
-    shortLabel: '搜索文档',
-    triggerLabel: '搜索文档...',
-  },
-} as const
 
-type SearchLocaleCode = keyof typeof SEARCH_COPY
-
-const resolveCopy = (locale: string | undefined) =>
-  SEARCH_COPY[(locale ?? 'en').startsWith('zh') ? 'zh' : 'en']
 
 const resolveSearchLocale = (
   localeLinks: DocsThemeHeaderActionsProps['localeLinks'],
@@ -52,7 +28,7 @@ const getEmptyStateMessage = ({
   hasQuery,
   loading,
 }: Pick<ReturnType<typeof useDocsSearch>, 'error' | 'hasQuery' | 'loading'> & {
-  copy: (typeof SEARCH_COPY)[SearchLocaleCode]
+  copy: Messages['search']
 }) => {
   if (error) {
     return error
@@ -87,7 +63,7 @@ export const DocsHeaderSearchAction: React.FC<DocsThemeHeaderActionsProps> = ({
 }) => {
   const { open, setOpen } = useQuickSearchState()
   const locale = resolveSearchLocale(localeLinks)
-  const copy = resolveCopy(locale)
+  const copy = getMessages(locale).search
   const { error, hasQuery, items, loading, query, setQuery } = useDocsSearch({
     locale,
     open,

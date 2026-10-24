@@ -1,5 +1,7 @@
 'use client'
 
+import { getMessages, type Locale } from '@/locales'
+
 import type { CSSProperties } from 'react'
 import { CodeBlock } from '@blackwork/machine/runtime'
 
@@ -8,17 +10,18 @@ export interface HighlightedCommand {
   lines: { text: string; light?: string; dark?: string }[][]
 }
 
-export function CommandBlock({ command, locale = 'en' }: {
+export const CommandBlock = ({ command, locale = 'en' }: {
   command: HighlightedCommand
-  locale?: 'en' | 'zh'
-}) {
+  locale?: Locale
+}) => {
+  const copy = getMessages(locale).common
   return (
     <CodeBlock
       language="bash"
       rawCode={command.text}
-      copyLabel={locale === 'zh' ? '复制命令' : 'Copy command'}
-      copiedLabel={locale === 'zh' ? '已复制' : 'Copied'}
-      aria-label={locale === 'zh' ? '命令' : 'Command'}
+      copyLabel={copy.copyCommand}
+      copiedLabel={copy.copied}
+      aria-label={copy.command}
       tabIndex={0}
       className="shiki"
     >

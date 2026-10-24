@@ -33,6 +33,26 @@ Keep tests in a nearby `__tests__/` directory, such as
 Development and production builds copy `../schema/preset.schema.json` into the
 public site, so the CLI and website share one schema source.
 
+## UI translations
+
+Shared interface messages live in `src/locales/en.json` and `zh.json`, grouped
+by module (`home`, `examples`, `search`, `agent`, etc.). Components and helpers
+read them through `getMessages(locale)` from `@/locales`; this works in both
+Server and Client Components without a provider:
+
+```ts
+const { agent } = getMessages(locale)
+```
+
+Add new interface copy to the same module in both JSON files. English defines
+the TypeScript message shape; type checks and locale tests catch missing fields.
+`src/locales/config.ts` owns the supported language definitions and default
+language used by the docs framework. `resolveLocale` accepts region tags such
+as `zh-CN` and falls back to English for unsupported languages.
+
+Markdown/MDX articles remain in `src/contents/<locale>`. The docs framework's
+navigation/theme configuration keeps its native localized-label format.
+
 ## Social previews
 
 Every canonical page gets Open Graph and X Card metadata from its existing

@@ -1,5 +1,7 @@
 'use client'
 
+import { getMessages } from '@/locales'
+
 import {
   createSearchClient,
   type SearchClient,
@@ -9,8 +11,6 @@ import {
 import * as React from 'react'
 
 const MIN_QUERY_LENGTH = 2
-const INDEX_UNAVAILABLE_MESSAGE =
-  'Search index unavailable. Run the static build to generate Pagefind assets.'
 
 const getSearchOptions = (
   locale: string | undefined,
@@ -23,7 +23,6 @@ const getSearchOptions = (
       }
     : undefined
 
-const toErrorMessage = (_error: unknown) => INDEX_UNAVAILABLE_MESSAGE
 
 export interface UseDocsSearchOptions {
   locale?: string
@@ -113,7 +112,7 @@ export const useDocsSearch = ({
           setItems(result.items)
           setLoading(false)
         })
-      } catch (error) {
+      } catch {
         if (cancelled) {
           return
         }
@@ -121,7 +120,7 @@ export const useDocsSearch = ({
         React.startTransition(() => {
           setItems([])
           setLoading(false)
-          setError(toErrorMessage(error))
+          setError(getMessages(locale).search.indexUnavailable)
         })
       }
     }

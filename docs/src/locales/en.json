@@ -1,0 +1,184 @@
+{
+  "home": {
+    "sourceCode": "Source code on GitHub",
+    "logo": "Create Preset toolbox logo",
+    "stars": "GitHub stars",
+    "featuresLabel": "Features",
+    "features": [
+      {
+        "icon": "🧰",
+        "title": "Practicality",
+        "description": "Supports everything from starter templates to complex projects."
+      },
+      {
+        "icon": "⚡️",
+        "title": "Efficient",
+        "description": "Reduces repetitive configuration processes every time a new project is created."
+      },
+      {
+        "icon": "🤹",
+        "title": "Interactive",
+        "description": "Simple command-line interactive operation."
+      },
+      {
+        "icon": "🛠",
+        "title": "Multi-Tech Stacks",
+        "description": "Provide commonly used multiple technology stack project support."
+      },
+      {
+        "icon": "🎛️",
+        "title": "Project customization",
+        "description": "Use the same template to create projects with different configurations."
+      },
+      {
+        "icon": "🔑",
+        "title": "Private Configuration",
+        "description": "Manage private project sources in a local config."
+      }
+    ],
+    "usageTitle": "Try it out",
+    "usageDescription": "Run one of the following commands and follow the prompts.",
+    "previewTitle": "A look at the CLI",
+    "previewDescription": "Vue offers the official Vue starter and Nuxt.",
+    "previewCaption": "Vue options in Create Preset 1.0.",
+    "terminalDescription": "Create projects with official generators and declarative presets.",
+    "projectName": "Project name",
+    "selectStack": "Select a tech stack",
+    "selectPreset": "Select a preset",
+    "vueStarter": "Official Vue Starter",
+    "labels": {
+      "changeLanguage": "Change language",
+      "openSiteNavigation": "Open site navigation",
+      "primaryNavigation": "Primary navigation",
+      "toggleTheme": "Toggle theme"
+    },
+    "hero": {
+      "brandNote": "One source. Your presets.",
+      "title": "Similar templates.",
+      "question": "Separate copies?",
+      "answer": "No!",
+      "description": "Maintain shared code once. Describe the differences in a preset, then select files and apply changes when creating each project.",
+      "bestPractices": "Best practices"
+    },
+    "diagram": {
+      "label": "One starter generates two editions through basic.json and team.json",
+      "maintain": "Maintain once",
+      "basic": "Basic edition",
+      "team": "Team edition",
+      "excluded": "Excluded",
+      "caption": "Edit shared code once. Keep edition differences in config."
+    }
+  },
+  "examples": {
+    "title": "Less repetition in your workflow",
+    "description": "Start with a familiar problem. Compare the source files, preset config, and generated output.",
+    "before": "Manual upkeep",
+    "after": "With Create Preset",
+    "view": "View example",
+    "all": "Examples",
+    "scenarios": [
+      {
+        "id": "variants",
+        "title": "Almost identical templates, maintained separately?",
+        "before": "Keep separate copies for basic and team editions. Check and fix the same code in every copy.",
+        "after": "Keep one source. Describe the file and config differences in presets and generate the edition needed."
+      },
+      {
+        "id": "skills",
+        "title": "Copying the same skills into every project?",
+        "before": "Find the usual skills, copy them one by one, then remove the ones this project does not need.",
+        "after": "Keep common skills in one repository. Select them with a preset and bring them into a project together."
+      },
+      {
+        "id": "monorepo",
+        "title": "Only need one project from a monorepo?",
+        "before": "Clone the repository, extract a directory, remove unrelated files, then fix workspace: dependencies.",
+        "after": "Choose the directory, exclusions, and dependency rules to generate a standalone project."
+      },
+      {
+        "id": "file-changes",
+        "title": "Making the same edits after every clone?",
+        "before": "Remove sample files, rewrite the README, and change config values every time a project is created.",
+        "after": "Describe those steps in a preset and apply them during project creation."
+      }
+    ]
+  },
+  "agent": {
+    "label": "Copy for AI",
+    "description": "Copy a prompt to paste into your AI assistant",
+    "copied": "Copied",
+    "failed": "Clipboard unavailable. Select and copy the prompt below.",
+    "promptLabel": "AI prompt",
+    "prompt": {
+      "index": "Read the Create Preset agent documentation index first: ",
+      "page": "Markdown for the current page: ",
+      "instructions": "Follow only the relevant guides, references and examples, then suggest commands or a preset config for my project. Distinguish creating a new project from adding files to an existing one, and explain what the commands do. Ask me for any missing essential information.",
+      "task": "My task: [describe the goal, source repository and target directory]"
+    }
+  },
+  "search": {
+    "ariaLabel": "Search docs",
+    "closeLabel": "Close search",
+    "emptyNoMatch": "No matching pages found in this locale.",
+    "inputPlaceholder": "Search docs...",
+    "loading": "Searching docs...",
+    "minQuery": "Type at least 2 characters to search the docs.",
+    "shortLabel": "Search docs",
+    "triggerLabel": "Search docs...",
+    "indexUnavailable": "Search index unavailable. Run the static build to generate Pagefind assets."
+  },
+  "scenario": {
+    "tabs": [
+      "Template variants",
+      "Shared skills",
+      "Monorepo projects",
+      "File changes"
+    ],
+    "source": "Source files",
+    "config": "Preset rules",
+    "output": "Generated files",
+    "excerpt": "Config excerpt",
+    "edition": "Choose an edition",
+    "sourceHint": "Amber marks content to change",
+    "outputHint": "Green marks rewritten lines",
+    "footnote": "Fictional repository · Commands are not run in the browser",
+    "view": "Explore the example",
+    "browse": "Choose a scenario to see what happens to the files.",
+    "files": "files"
+  },
+  "explorer": {
+    "source": "Source",
+    "config": "Preset config",
+    "output": "Output",
+    "files": "Files",
+    "edition": "Edition",
+    "command": "Create command",
+    "noteTitle": "Example note",
+    "note": "The files below show the source, config, and expected output; no commands run here. To try it locally, replace the example repository URL and save the JSON at the path in the command.",
+    "steps": "Example steps"
+  },
+  "changes": {
+    "unchanged": "Kept",
+    "modified": "Edited",
+    "added": "Added",
+    "removed": "Excluded",
+    "outside": "Not selected"
+  },
+  "showcase": {
+    "description": "A documentation starter with Markdown and MDX, bilingual content, theme controls, and static search. Maintained by Blackwork and created through a public preset.",
+    "screenshot": "The MDX Playground in a project generated from the Blackwork Docs Starter preset.",
+    "caption": "Actual generated starter · MDX Playground",
+    "source": "View preset",
+    "website": "Docs Starter guide",
+    "websiteHref": "https://ui.chengpeiquan.com/docs-starter/",
+    "category": "Documentation",
+    "create": "Create this project",
+    "createHref": "#create-this-project"
+  },
+  "common": {
+    "copyCommand": "Copy command",
+    "copied": "Copied",
+    "command": "Command",
+    "packageManager": "Package manager"
+  }
+}

@@ -1,0 +1,184 @@
+{
+  "home": {
+    "sourceCode": "在 GitHub 查看源码",
+    "logo": "Create Preset 工具箱 Logo",
+    "stars": "GitHub 星标数",
+    "featuresLabel": "功能特点",
+    "features": [
+      {
+        "icon": "🧰",
+        "title": "实用性",
+        "description": "从入门模板到复杂项目均可支持。"
+      },
+      {
+        "icon": "⚡️",
+        "title": "高效的",
+        "description": "减少每次创建新项目时的重复配置过程。"
+      },
+      {
+        "icon": "🤹",
+        "title": "交互式",
+        "description": "简单的命令行交互式操作。"
+      },
+      {
+        "icon": "🛠",
+        "title": "多技术栈",
+        "description": "提供常用的多种技术栈项目支持。"
+      },
+      {
+        "icon": "🎛️",
+        "title": "项目定制",
+        "description": "同一模板可用于创建不同配置的项目。"
+      },
+      {
+        "icon": "🔑",
+        "title": "私有配置",
+        "description": "通过本地配置管理私有项目源。"
+      }
+    ],
+    "usageTitle": "简单体验",
+    "usageDescription": "运行以下命令，并按照提示进行操作。",
+    "previewTitle": "功能预览",
+    "previewDescription": "选择 Vue 后可使用 Vue 官方 Starter 或 Nuxt。",
+    "previewCaption": "Create Preset 1.0 的 Vue 选项。",
+    "terminalDescription": "使用官方脚手架和声明式 Preset 创建项目。",
+    "projectName": "项目名称",
+    "selectStack": "选择技术栈",
+    "selectPreset": "选择 Preset",
+    "vueStarter": "Vue 官方 Starter",
+    "labels": {
+      "changeLanguage": "切换语言",
+      "openSiteNavigation": "打开网站导航",
+      "primaryNavigation": "主导航",
+      "toggleTheme": "切换主题"
+    },
+    "hero": {
+      "brandNote": "一份源码，按需生成",
+      "title": "模板只差几处，",
+      "question": "也要维护多份？",
+      "answer": "不需要！",
+      "description": "公共代码维护一份，文件差异交给 Preset。创建项目时，选取目录、调整配置，生成需要的版本。",
+      "bestPractices": "最佳实践"
+    },
+    "diagram": {
+      "label": "同一份 starter，通过 basic.json 和 team.json 生成两个版本",
+      "maintain": "维护这一份",
+      "basic": "基础版",
+      "team": "团队版",
+      "excluded": "排除",
+      "caption": "公共代码改一处，版本差异留在配置里。"
+    }
+  },
+  "examples": {
+    "title": "工作场景不再繁琐",
+    "description": "从一个常见问题开始，看看源文件、Preset 配置和生成结果。",
+    "before": "手动维护",
+    "after": "使用 Create Preset",
+    "view": "查看示例",
+    "all": "使用示例",
+    "scenarios": [
+      {
+        "id": "variants",
+        "title": "模板差别不大，却要维护好几份？",
+        "before": "基础版、团队版各复制一份源码。修一个问题，每份模板都要检查和修改。",
+        "after": "共用一份源码，把文件和配置差异写进 Preset，创建时生成需要的版本。"
+      },
+      {
+        "id": "skills",
+        "title": "每个项目都要复制同一批 Skills？",
+        "before": "找到常用 Skills，逐个复制到项目目录，再删掉这次用不上的。",
+        "after": "常用 Skills 集中放在一个仓库，按配置选取，一次引入到项目的 Skills 目录。"
+      },
+      {
+        "id": "monorepo",
+        "title": "只想用 monorepo 里的一个子项目？",
+        "before": "克隆整个仓库，取出子目录，删除无关文件，再处理 workspace: 依赖。",
+        "after": "指定子目录、排除文件和依赖处理规则，直接生成独立项目。"
+      },
+      {
+        "id": "file-changes",
+        "title": "模板拉下来，每次都要改同样的配置？",
+        "before": "删除示例文件、修改 README、替换配置值，每次创建项目都再做一遍。",
+        "after": "将固定步骤写进 Preset，创建项目时一起完成。"
+      }
+    ]
+  },
+  "agent": {
+    "label": "复制给 AI",
+    "description": "复制提示词，粘贴给你的 AI 助手",
+    "copied": "已复制",
+    "failed": "无法访问剪贴板，请选中下方提示词并手动复制。",
+    "promptLabel": "AI 提示词",
+    "prompt": {
+      "index": "请先阅读 Create Preset 的 Agent 文档索引：",
+      "page": "当前页面的 Markdown：",
+      "instructions": "按需阅读相关指南、配置参考和示例，结合我的项目给出适用的命令或 Preset 配置。请区分创建新项目与向已有项目添加文件，并说明命令的实际效果；缺少关键信息时先向我确认。",
+      "task": "我的需求：[在这里描述目标、源仓库和目标目录]"
+    }
+  },
+  "search": {
+    "ariaLabel": "搜索文档",
+    "closeLabel": "关闭搜索",
+    "emptyNoMatch": "当前语言下没有匹配结果。",
+    "inputPlaceholder": "搜索文档...",
+    "loading": "正在搜索文档...",
+    "minQuery": "至少输入 2 个字符后开始搜索。",
+    "shortLabel": "搜索文档",
+    "triggerLabel": "搜索文档...",
+    "indexUnavailable": "搜索索引不可用，请运行静态构建以生成 Pagefind 资源。"
+  },
+  "scenario": {
+    "tabs": [
+      "模板重复维护",
+      "复用 Skills",
+      "提取子项目",
+      "调整文件"
+    ],
+    "source": "源文件",
+    "config": "配置差异",
+    "output": "生成结果",
+    "excerpt": "关键配置节选",
+    "edition": "切换生成版本",
+    "sourceHint": "琥珀色标出需要处理的内容",
+    "outputHint": "绿色标出生成时改写的行",
+    "footnote": "虚构仓库演示 · 不会在浏览器中执行命令",
+    "view": "查看完整示例",
+    "browse": "选择一个场景，看看文件如何变化。",
+    "files": "个文件"
+  },
+  "explorer": {
+    "source": "源文件",
+    "config": "Preset 配置",
+    "output": "生成结果",
+    "files": "文件列表",
+    "edition": "生成版本",
+    "command": "创建命令",
+    "noteTitle": "示例说明",
+    "note": "下方只演示文件变化，不会运行命令。试用前，先替换示例仓库地址，再把 JSON 保存到命令指定的路径。",
+    "steps": "示例步骤"
+  },
+  "changes": {
+    "unchanged": "保留",
+    "modified": "修改",
+    "added": "新增",
+    "removed": "排除",
+    "outside": "未选取"
+  },
+  "showcase": {
+    "description": "支持 Markdown 和 MDX、中英文内容、主题切换与静态搜索的文档站模板。由 Blackwork 维护，通过公开 Preset 创建。",
+    "screenshot": "通过 Blackwork Docs Starter Preset 实际生成的项目中的 MDX 示例页面。",
+    "caption": "实际生成的模板 · MDX 示例页面",
+    "source": "查看 Preset",
+    "website": "文档站指南",
+    "websiteHref": "https://ui.chengpeiquan.com/zh/docs-starter/",
+    "category": "文档站",
+    "create": "创建这个项目",
+    "createHref": "#创建这个项目"
+  },
+  "common": {
+    "copyCommand": "复制命令",
+    "copied": "已复制",
+    "command": "命令",
+    "packageManager": "包管理器"
+  }
+}
