@@ -17,8 +17,7 @@ import { PackageManagerCommands } from '@/mdx/components/package-manager-command
 import { PresetFooter } from '@/site/footer'
 import { DocsSiteLink } from '@/site/docs-link'
 import { cn } from '@/utils/class-name'
-import { homeCopy } from './copy'
-import { exampleCopy } from '@/examples/copy'
+import { getMessages, resolveLocale } from '@/locales'
 import { HomeScenarios } from './scenarios'
 import { SourceDiagram } from './source-diagram'
 import styles from './preset-home.module.css'
@@ -26,7 +25,7 @@ import styles from './preset-home.module.css'
 const githubUrl = 'https://github.com/preset-cli/create-preset'
 const featureIcons = [Boxes, Zap, Terminal, Layers, SlidersHorizontal, KeyRound]
 
-export function PresetHome({
+export const PresetHome = ({
   config,
   entry,
   source,
@@ -34,9 +33,9 @@ export function PresetHome({
   config: NormalizedDocsConfig
   entry: DocEntry
   source: DocsSource
-}) {
-  const copy = homeCopy[entry.locale === 'zh' ? 'zh' : 'en']
-  const locale = entry.locale === 'zh' ? 'zh' : 'en'
+}) => {
+  const locale = resolveLocale(entry.locale)
+  const { home: copy, examples } = getMessages(locale)
   const examplesHref = `${locale === 'zh' ? '/zh' : ''}/examples/variants`
   const home = createHomeData({ config, locale: entry.locale, source })
   const navigation = buildHeaderNavigation({
@@ -102,23 +101,21 @@ export function PresetHome({
                 <img src="/logo-compact.svg" alt={copy.logo} width={858} height={623} className="h-auto w-12" fetchPriority="high" />
                 <span>{home.title}</span>
                 <span className={styles.brandRule} aria-hidden="true" />
-                <span className={styles.brandNote}>{locale === 'zh' ? '一份源码，按需生成' : 'One source. Your presets.'}</span>
+                <span className={styles.brandNote}>{copy.hero.brandNote}</span>
               </div>
               <h1 id="home-title" className={styles.title}>
-                {locale === 'zh' ? <>模板只差几处，<br /><span>也要维护多份？ <span className="inline-block">不需要！</span></span></> : <>Similar templates.<br /><span>Separate copies? <span className="inline-block">No!</span></span></>}
+                {copy.hero.title}<br /><span>{copy.hero.question} <span className="inline-block">{copy.hero.answer}</span></span>
               </h1>
               <p className={styles.description}>
-                {locale === 'zh'
-                  ? '公共代码维护一份，文件差异交给 Preset。创建项目时，选取目录、调整配置，生成需要的版本。'
-                  : 'Maintain shared code once. Describe the differences in a preset, then select files and apply changes when creating each project.'}
+                {copy.hero.description}
               </p>
               <div className="mt-7 flex flex-wrap items-center gap-3">
-                <Button asChild size="lg"><a href="#scenarios">{locale === 'zh' ? '最佳实践' : 'Best practices'} <span aria-hidden="true">↓</span></a></Button>
+                <Button asChild size="lg"><a href="#scenarios">{copy.hero.bestPractices} <span aria-hidden="true">↓</span></a></Button>
                 <Button asChild variant="outline" size="lg"><Link href={home.primaryAction.href}>{home.primaryAction.label}</Link></Button>
               </div>
               <div className={styles.heroMeta}>
                 {badge && <a href={badge.href} target="_blank" rel="noreferrer" className={styles.badgeLink}><img src={badge.src} alt={badge.alt} width={100} height={20} className="h-5 w-auto" /></a>}
-                <Link href={examplesHref}>{exampleCopy[locale].all} <span aria-hidden="true">↗</span></Link>
+                <Link href={examplesHref}>{examples.all} <span aria-hidden="true">↗</span></Link>
                 <a href={githubUrl} target="_blank" rel="noreferrer">GitHub <span aria-hidden="true">↗</span></a>
               </div>
             </div>
@@ -171,7 +168,7 @@ export function PresetHome({
             <p className="text-pretty leading-7 text-muted-foreground">
               {copy.usageDescription}
             </p>
-            <PackageManagerCommands locale={entry.locale === 'zh' ? 'zh' : 'en'} />
+            <PackageManagerCommands locale={locale} />
           </section>
 
           <section aria-labelledby="preview-title" className="mt-12 space-y-4">

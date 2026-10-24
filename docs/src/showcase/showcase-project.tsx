@@ -1,36 +1,8 @@
+import { getMessages, type Locale } from '@/locales'
 import { Badge, Button, Card, CardContent, CardHeader } from 'blackwork/rsc'
 
-const copy = {
-  en: {
-    description:
-      'A documentation starter with Markdown and MDX, bilingual content, theme controls, and static search. Maintained by Blackwork and created through a public preset.',
-    screenshot:
-      'The MDX Playground in a project generated from the Blackwork Docs Starter preset.',
-    caption: 'Actual generated starter · MDX Playground',
-    source: 'View preset',
-    website: 'Docs Starter guide',
-    websiteHref: 'https://ui.chengpeiquan.com/docs-starter/',
-    category: 'Documentation',
-    create: 'Create this project',
-    createHref: '#create-this-project',
-  },
-  zh: {
-    description:
-      '支持 Markdown 和 MDX、中英文内容、主题切换与静态搜索的文档站模板。由 Blackwork 维护，通过公开 Preset 创建。',
-    screenshot:
-      '通过 Blackwork Docs Starter Preset 实际生成的项目中的 MDX 示例页面。',
-    caption: '实际生成的模板 · MDX 示例页面',
-    source: '查看 Preset',
-    website: '文档站指南',
-    websiteHref: 'https://ui.chengpeiquan.com/zh/docs-starter/',
-    category: '文档站',
-    create: '创建这个项目',
-    createHref: '#创建这个项目',
-  },
-} as const
-
-export function ShowcaseProject({ locale = 'en' }: { locale?: 'en' | 'zh' }) {
-  const text = copy[locale]
+export const ShowcaseProject = ({ locale = 'en' }: { locale?: Locale }) => {
+  const text = getMessages(locale).showcase
 
   return (
     <section

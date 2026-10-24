@@ -4,32 +4,13 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { Tabs, TabsList, TabsTrigger, TabsContent, Button } from 'blackwork'
 import { ArrowRight, FileCode2, FolderOpen, SlidersHorizontal } from 'lucide-react'
-import { exampleCopy } from '@/examples/copy'
+import { getMessages, type Locale } from '@/locales'
 import type { ExampleFile, ExampleView, PresetView } from '@/examples/code-types'
 import { CodeView, ChangeMark } from '@/examples/code-view'
 import { CommandBlock } from '@/mdx/components/command-block'
 import styles from './scenario-demo.module.css'
 
-const ui = {
-  zh: {
-    tabs: ['模板重复维护', '复用 Skills', '提取子项目', '调整文件'],
-    source: '源文件', config: '配置差异', output: '生成结果',
-    excerpt: '关键配置节选', edition: '切换生成版本',
-    sourceHint: '琥珀色标出需要处理的内容', outputHint: '绿色标出生成时改写的行',
-    footnote: '虚构仓库演示 · 不会在浏览器中执行命令',
-    view: '查看完整示例', browse: '选择一个场景，看看文件如何变化。',
-  },
-  en: {
-    tabs: ['Template variants', 'Shared skills', 'Monorepo projects', 'File changes'],
-    source: 'Source files', config: 'Preset rules', output: 'Generated files',
-    excerpt: 'Config excerpt', edition: 'Choose an edition',
-    sourceHint: 'Amber marks content to change', outputHint: 'Green marks rewritten lines',
-    footnote: 'Fictional repository · Commands are not run in the browser',
-    view: 'Explore the example', browse: 'Choose a scenario to see what happens to the files.',
-  },
-}
-
-function FileRows({ files, locale, directory = '' }: { files: ExampleFile[]; locale: 'en' | 'zh'; directory?: string }) {
+const FileRows = ({ files, locale, directory = '' }: { files: ExampleFile[]; locale: Locale; directory?: string }) => {
   return (
     <ul className={styles.files}>
       {files.map((file) => (
@@ -43,10 +24,10 @@ function FileRows({ files, locale, directory = '' }: { files: ExampleFile[]; loc
   )
 }
 
-function Demonstration({ data, locale }: { data: ExampleView; locale: 'en' | 'zh' }) {
+const Demonstration = ({ data, locale }: { data: ExampleView; locale: Locale }) => {
   const [selected, setSelected] = useState(0)
   const preset: PresetView = data.presets[selected]
-  const copy = ui[locale]
+  const copy = getMessages(locale).scenario
   const focusPath = data.id === 'monorepo' ? 'package.json'
     : data.id === 'file-changes' ? '.env.example'
     : data.id === 'skills' ? 'code-review/SKILL.md' : 'src/main.ts'
@@ -82,7 +63,7 @@ function Demonstration({ data, locale }: { data: ExampleView; locale: 'en' | 'zh
           <CodeView file={preset.excerpt} side="config" compact />
         </section>
         <section className={styles.pane} aria-label={copy.output}>
-          <div className={`${styles.step} ${styles.outputStep}`}><span>03</span><h4>{copy.output}</h4><span className="ml-auto font-mono text-xs">{preset.output.length} {locale === 'zh' ? '个文件' : 'files'}</span></div>
+          <div className={`${styles.step} ${styles.outputStep}`}><span>03</span><h4>{copy.output}</h4><span className="ml-auto font-mono text-xs">{preset.output.length} {copy.files}</span></div>
           <div className={styles.root}>{preset.target}/</div>
           <FileRows files={preset.output} locale={locale} />
           <div className={styles.codeTitle}>{focusPath}</div>
@@ -100,9 +81,9 @@ function Demonstration({ data, locale }: { data: ExampleView; locale: 'en' | 'zh
   )
 }
 
-export function ScenarioDemo({ locale, examples }: { locale: 'en' | 'zh'; examples: ExampleView[] }) {
-  const copy = exampleCopy[locale]
-  const text = ui[locale]
+export const ScenarioDemo = ({ locale, examples }: { locale: Locale; examples: ExampleView[] }) => {
+  const copy = getMessages(locale).examples
+  const text = getMessages(locale).scenario
   const prefix = locale === 'zh' ? '/zh' : ''
 
   return (
