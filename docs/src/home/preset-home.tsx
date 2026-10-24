@@ -20,6 +20,7 @@ import { cn } from '@/utils/class-name'
 import { getMessages, resolveLocale } from '@/locales'
 import { HomeScenarios } from './scenarios'
 import { SourceDiagram } from './source-diagram'
+import { CopyAgentPrompt } from '@/agent/copy-agent-prompt'
 import styles from './preset-home.module.css'
 
 const githubUrl = 'https://github.com/preset-cli/create-preset'
@@ -117,6 +118,7 @@ export const PresetHome = ({
                 {badge && <a href={badge.href} target="_blank" rel="noreferrer" className={styles.badgeLink}><img src={badge.src} alt={badge.alt} width={100} height={20} className="h-5 w-auto" /></a>}
                 <Link href={examplesHref}>{examples.all} <span aria-hidden="true">↗</span></Link>
                 <a href={githubUrl} target="_blank" rel="noreferrer">GitHub <span aria-hidden="true">↗</span></a>
+                <CopyAgentPrompt locale={locale} />
               </div>
             </div>
             <SourceDiagram locale={locale} />

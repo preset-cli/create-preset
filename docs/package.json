@@ -4,14 +4,15 @@
   "type": "module",
   "packageManager": "pnpm@12.4.2",
   "scripts": {
-    "dev": "node scripts/sync-schema.mjs && next dev --port 3300",
-    "build": "node scripts/sync-schema.mjs && NEXT_OUTPUT=export NEXT_DIST_DIR=.next-static next build && pnpm run build:search",
+    "dev": "node scripts/sync-schema.mjs && pnpm run build:agent-docs && next dev --port 3300",
+    "build": "node scripts/sync-schema.mjs && pnpm run build:agent-docs && NEXT_OUTPUT=export NEXT_DIST_DIR=.next-static next build && pnpm run build:search",
+    "build:agent-docs": "node scripts/build-agent-docs.mjs",
     "build:search": "node ./scripts/build-search-index.mjs",
     "build:static": "pnpm run build",
     "start": "pnpm run start:static",
     "start:static": "pnpm dlx serve .next-static --listen 4300",
     "lint": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run && node --test scripts/__tests__/*.test.mjs"
   },
   "dependencies": {
     "@bassist/utils": "^0.17.0",

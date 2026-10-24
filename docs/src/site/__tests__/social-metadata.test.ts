@@ -41,6 +41,9 @@ describe('social previews', () => {
     })
     expect(metadata.alternates?.languages).toHaveProperty('en-US')
     expect(metadata.alternates?.languages).toHaveProperty('zh-CN')
+    expect(metadata.alternates?.types).toEqual({
+      'text/markdown': 'https://preset.js.org/agent/guide/preset-configs.md',
+    })
   })
 
   test('keeps English aliases noindex and shares the canonical preview', () => {

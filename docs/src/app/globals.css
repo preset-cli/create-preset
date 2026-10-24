@@ -23,6 +23,21 @@
   background-color: hsl(var(--foreground) / 0.35);
 }
 
+/* Anchor the copy utility to the title without adding a row to the article. */
+[data-docs-region='article-content']:has([data-agent-actions]) {
+  position: relative;
+}
+
+[data-docs-region='article-content']:has([data-agent-actions]) > [data-docs-region='article-header'] > h1 {
+  padding-inline-end: 7rem;
+}
+
+[data-agent-actions] {
+  position: absolute;
+  inset-block-start: 0.125rem;
+  inset-inline-end: 0;
+}
+
 /* File examples need room for both paths and code inside the shared docs shell. */
 @media (width >= 64rem) {
   [data-docs-region='docs-shell']:has([data-preset-example]) {
@@ -90,7 +105,8 @@
     letter-spacing: -0.02em;
   }
 
-  article > :first-child:is(h1) {
+  article > :first-child:is(h1),
+  article > [data-agent-actions] + h1 {
     display: none;
   }
 
