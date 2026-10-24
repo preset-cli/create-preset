@@ -1,8 +1,8 @@
 import * as React from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, test, vi } from 'vitest'
-import { DocsSiteLink } from './docs-link'
-import { getCurrentHeaderHref } from './navigation'
+import { DocsSiteLink } from '../docs-link'
+import { getCurrentHeaderHref } from '../navigation'
 
 const { usePathname } = vi.hoisted(() => ({ usePathname: vi.fn() }))
 

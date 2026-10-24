@@ -1,7 +1,7 @@
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, test } from 'vitest'
-import { DocsFadePreview } from './fade-preview'
+import { DocsFadePreview } from '../fade-preview'
 
 describe('DocsFadePreview', () => {
   test('renders a mock long-sidebar preview with fade rails', () => {

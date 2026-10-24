@@ -1,11 +1,11 @@
 import { createDocsSource, type DocEntry } from '@blackwork/docs'
 import { describe, expect, test } from 'vitest'
-import { docsConfig } from '../../docs.config'
-import { createSocialMetadata, getSocialImagePath } from './social-metadata'
+import { docsConfig } from '../../../docs.config'
+import { createSocialMetadata, getSocialImagePath } from '../social-metadata'
 
 const source = createDocsSource({ config: docsConfig, rootDir: '.' })
 
-function getEntry(locale: string, slugSegments: string[] = []) {
+const getEntry = (locale: string, slugSegments: string[] = []) => {
   const entry = source.getEntry(locale, slugSegments)
   expect(entry).not.toBeNull()
   return entry as DocEntry

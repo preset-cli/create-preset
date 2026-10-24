@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { changedLines, sourceChange } from './changes'
+import { changedLines, sourceChange } from '../changes'
 
 describe('example change annotations', () => {
   test('does not mark retained lines after a removed import', () => {
