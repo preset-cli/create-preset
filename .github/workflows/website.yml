@@ -6,12 +6,14 @@ on:
     paths:
       - 'docs/**'
       - 'schema/**'
+      - 'package.json'
       - '.github/workflows/website.yml'
   pull_request:
     branches: [main]
     paths:
       - 'docs/**'
       - 'schema/**'
+      - 'package.json'
       - '.github/workflows/website.yml'
   workflow_dispatch:
 
@@ -51,7 +53,7 @@ jobs:
         run: pnpm build
       - name: Verify static website
         run: |
-          for file in index.html zh/index.html en/index.html zh/guide/getting-started/index.html pagefind/pagefind.js pagefind/pagefind-entry.json schema/preset.schema.json CNAME; do
+          for file in index.html zh/index.html en/index.html zh/guide/getting-started/index.html pagefind/pagefind.js pagefind/pagefind-entry.json schema/preset.schema.json llms.txt llms-full.txt agent/guide/getting-started.md agent/reference/preset-configs.md CNAME; do
             test -s ".next-static/$file"
           done
           test -d .next-static/_next/static

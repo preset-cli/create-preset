@@ -4,6 +4,7 @@ import {
   type DocEntry,
 } from '@blackwork/docs'
 import type { Metadata } from 'next'
+import { getAgentPagePath } from '@/agent/prompt'
 
 export const socialImageSize = { width: 1200, height: 630 }
 
@@ -15,6 +16,7 @@ export function getSocialImagePath(entry: DocEntry) {
 export function createSocialMetadata(options: CreateDocMetadataOptions): Metadata {
   const metadata = createDocMetadata(options)
   const { entry, config } = options
+  const agentPath = getAgentPagePath(entry)
   const image = {
     url: new URL(getSocialImagePath(entry), metadata.alternates.canonical).href,
     ...socialImageSize,
@@ -23,6 +25,10 @@ export function createSocialMetadata(options: CreateDocMetadataOptions): Metadat
 
   return {
     ...metadata,
+    alternates: {
+      ...metadata.alternates,
+      ...(agentPath ? { types: { 'text/markdown': `https://preset.js.org${agentPath}` } } : {}),
+    },
     openGraph: {
       type: 'website',
       siteName: config?.site?.title,

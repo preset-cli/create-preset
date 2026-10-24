@@ -9,6 +9,8 @@ import { docsConfig } from '../../../docs.config'
 import { LegacyRedirectPage } from './redirects/legacy-redirect-page'
 import { PresetHome } from '@/home/preset-home'
 import { createSocialMetadata } from '@/site/social-metadata'
+import { AgentDocsPage } from '@/agent/docs-agent-page'
+import { getAgentPagePath } from '@/agent/prompt'
 
 export const dynamicParams = false
 
@@ -63,6 +65,10 @@ export default async function DocsRoutePage({
         source={source}
       />
     )
+  }
+
+  if (resolution.kind === 'page' && getAgentPagePath(resolution.entry)) {
+    return <AgentDocsPage config={docsConfig} entry={resolution.entry} source={source} />
   }
 
   return DocsPage({

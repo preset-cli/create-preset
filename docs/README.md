@@ -27,7 +27,9 @@ pnpm start
 ```
 
 Keep tests in a nearby `__tests__/` directory, such as
-`src/site/__tests__/social-metadata.test.ts`, rather than beside production files.
+`src/locales/__tests__/locales.test.ts` or `scripts/__tests__/agent-docs.test.mjs`,
+rather than beside production files. `pnpm test` runs all source tests with Vitest
+and script tests with Node.js.
 
 `pnpm build` writes the static site and Pagefind search index to `.next-static`.
 Development and production builds copy `../schema/preset.schema.json` into the
@@ -53,6 +55,27 @@ as `zh-CN` and falls back to English for unsupported languages.
 Markdown/MDX articles remain in `src/contents/<locale>`. The docs framework's
 navigation/theme configuration keeps its native localized-label format.
 
+## Agent documentation
+
+`pnpm dev` and `pnpm build` generate one English `/llms.txt` index,
+`/llms-full.txt` bundle, and Markdown pages under `/agent/`. The guides and
+examples come from `src/contents/en`; full references come from the two reference
+documents in this directory. Command tabs and interactive examples expand from
+the same command data and fixtures used by the website. Generated files are not
+committed. After editing content during development, run `pnpm build:agent-docs`
+to refresh them; production builds always regenerate them.
+
+The homepage's secondary links and guide/example titles offer a localized **Copy for AI**
+button. Prompts follow the website language but always link to the same English
+index and corresponding English Markdown page. All prompts use
+the public production domain so they can be shared outside the current browser.
+The task placeholder is intended to be filled in before sending to an agent.
+
+When adding interactive MDX to guides or examples, add a plain Markdown renderer
+in `scripts/build-agent-docs.mjs`. Unsupported blocks fail generation rather than
+silently dropping useful content. Keep prose links outside code blocks: exported
+links resolve to the published Markdown pages, while sample code is preserved.
+
 ## Social previews
 
 Every canonical page gets Open Graph and X Card metadata from its existing
@@ -75,7 +98,7 @@ The workflow uses the repository's `ACCESS_TOKEN` secret to push the generated
 files and trigger the Pages deployment. The token needs write access to this
 repository. Pull requests only build and verify the website.
 
-Each build checks the homepages, guide, search index, schema and `CNAME`, and
+Each build checks the homepages, guide, search index, schema, agent docs and `CNAME`, and
 keeps a `website-static` download artifact for seven days. After publication,
 inspect `gh-pages` for `index.html`, `zh/`, `_next/`, `pagefind/`, `schema/`,
 `CNAME` and `.nojekyll`. The deployment commit includes the source commit SHA.
