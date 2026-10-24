@@ -1,0 +1,138 @@
+# Getting Started
+
+The [examples](https://preset.js.org/agent/examples/variants.md) include configs, source files, and output for template variants, shared skills, and monorepo projects.
+
+If a template author already provides a creation command, run it directly. There is no need to write a JSON config first.
+
+Run Create Preset with a package manager:
+
+pnpm:
+
+```bash
+pnpm create preset
+```
+
+npm:
+
+```bash
+npm create preset
+```
+
+Yarn:
+
+```bash
+yarn create preset
+```
+
+Bun:
+
+```bash
+bun create preset
+```
+
+Then enter a project name and choose a stack and template.
+
+Configured private presets appear before official generators within each stack. For official generators, follow that CLI's prompts.
+
+## Requirements
+
+- Install Node.js 14 or later to run the npm launcher. The package includes a precompiled Rust CLI, so no Rust compiler is required. Check the framework's documentation for the Node.js version required by its generator.
+- Official generators need an available package manager: npm, Yarn, pnpm, or Bun.
+- Creating projects from Git repositories requires Git and access to the source repository.
+
+## Global installation
+
+For frequent use, install globally:
+
+pnpm:
+
+```bash
+pnpm add -g create-preset
+```
+
+npm:
+
+```bash
+npm install -g create-preset
+```
+
+Yarn Classic:
+
+```bash
+yarn global add create-preset
+```
+
+Bun:
+
+```bash
+bun add -g create-preset
+```
+
+Check the version with `preset -v`. The examples below use the global `preset` command. The Yarn global installation command applies to Yarn Classic.
+
+Update a global installation with `preset upgrade`, then run `preset -v` again to check the version.
+
+## Direct creation
+
+Use `--from` to select a source directly. For example, run the official Vue generator with pnpm:
+
+```bash
+preset init my-vue-app --from vue --package-manager pnpm
+```
+
+The Vue generator handles the remaining setup and installation prompts.
+
+List the available official generator IDs and configured private presets with:
+
+```bash
+preset --list
+```
+
+Use an ID from this list with `--from`. Unknown sources exit with an error.
+
+`--from` also accepts a configured private preset name, a local JSON file path, or a remote config URL:
+
+```bash
+preset init my-docs --from https://example.com/preset.json
+```
+
+Replace the example URL with an actual config URL. Create Preset downloads the template and applies the configured file and dependency changes. See [Preset configs](https://preset.js.org/agent/guide/preset-configs.md) for the format.
+
+## Preview creation
+
+Add `--dry-run` to preview the JSON creation plan:
+
+```bash
+preset init my-vue-app --from vue --package-manager pnpm --dry-run
+preset init my-docs --from ./preset.json --dry-run
+```
+
+The preview shows the target and source without cloning repositories, running generators, querying npm versions, or changing project files. Remote config URLs are still fetched and validated.
+
+When replacing files in an existing target directory, the CLI asks for confirmation. Add `--yes` to allow replacement in a script:
+
+```bash
+preset init my-docs --from ./preset.json --yes
+```
+
+`--yes` skips only Create Preset's replacement confirmation. Official generators keep their own prompts.
+
+## Add files to an existing project
+
+Use a JSON preset with `apply` to preserve unrelated files and stop on conflicts:
+
+```bash
+preset apply .agents/skills --from ./skills.json --include code-review --include testing
+```
+
+Add `--dry-run` to compare actual generated files without modifying the target. This preview clones the source into temporary storage. See [Preset configs](https://preset.js.org/agent/guide/preset-configs.md) for selection and conflict rules.
+
+## Change the language
+
+Create Preset follows the system language and supports English, Simplified Chinese, Traditional Chinese, and Japanese. Set `PRESET_LANG` to choose a language explicitly. For example, switch to Japanese in a macOS or Linux terminal:
+
+```bash
+PRESET_LANG=ja-JP preset init
+```
+
+Official generators determine their own prompt language.

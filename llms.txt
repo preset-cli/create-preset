@@ -1,0 +1,32 @@
+# Create Preset
+
+> Create projects with official generators and declarative JSON presets, or apply selected files to existing projects.
+
+CLI version: 1.1.0. Start with Getting Started, then read only the references or examples needed for the task. Links below provide plain text without website navigation.
+
+## Guides
+
+- [Getting Started](https://preset.js.org/agent/guide/getting-started.md): Install Create Preset and create a project.
+- [Official Generators](https://preset.js.org/agent/guide/official-generators.md): Supported official generators and their commands.
+- [Private Presets](https://preset.js.org/agent/guide/private-presets.md): Manage team templates with a local config.
+- [Preset Configs](https://preset.js.org/agent/guide/preset-configs.md): Configure template sources and file operations with JSON.
+- [Migration to 1.0](https://preset.js.org/agent/guide/migration.md): Update commands and template sources for Create Preset 1.0.
+
+## Examples
+
+- [One template, different editions](https://preset.js.org/agent/examples/variants.md): Maintain shared code once and configure the differences between basic and team editions.
+- [Reuse skills across projects](https://preset.js.org/agent/examples/skills.md): Maintain common skills together and select the ones each project needs.
+- [Extract a project from a monorepo](https://preset.js.org/agent/examples/monorepo.md): Copy the needed directory and handle test files and workspace dependencies during creation.
+- [Edit files during project creation](https://preset.js.org/agent/examples/file-changes.md): Remove demo files, update the README, and change defaults while creating a project.
+
+## Reference
+
+- [Preset config reference](https://preset.js.org/agent/reference/preset-configs.md): Complete field and execution rules.
+
+- [Private preset manifest](https://preset.js.org/agent/reference/private-presets.md): Full manifest format.
+
+- [JSON Schema](https://preset.js.org/schema/preset.schema.json): Preset validation schema.
+
+## Optional
+
+- [Full documentation](https://preset.js.org/llms-full.txt): Combined guides, examples and references. Prefer individual pages for smaller context.

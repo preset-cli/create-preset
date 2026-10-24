@@ -1,0 +1,1403 @@
+# Create Preset 1.1.0
+
+Source: https://preset.js.org/agent/guide/getting-started.md
+
+# Getting Started
+
+The [examples](https://preset.js.org/agent/examples/variants.md) include configs, source files, and output for template variants, shared skills, and monorepo projects.
+
+If a template author already provides a creation command, run it directly. There is no need to write a JSON config first.
+
+Run Create Preset with a package manager:
+
+pnpm:
+
+```bash
+pnpm create preset
+```
+
+npm:
+
+```bash
+npm create preset
+```
+
+Yarn:
+
+```bash
+yarn create preset
+```
+
+Bun:
+
+```bash
+bun create preset
+```
+
+Then enter a project name and choose a stack and template.
+
+Configured private presets appear before official generators within each stack. For official generators, follow that CLI's prompts.
+
+## Requirements
+
+- Install Node.js 14 or later to run the npm launcher. The package includes a precompiled Rust CLI, so no Rust compiler is required. Check the framework's documentation for the Node.js version required by its generator.
+- Official generators need an available package manager: npm, Yarn, pnpm, or Bun.
+- Creating projects from Git repositories requires Git and access to the source repository.
+
+## Global installation
+
+For frequent use, install globally:
+
+pnpm:
+
+```bash
+pnpm add -g create-preset
+```
+
+npm:
+
+```bash
+npm install -g create-preset
+```
+
+Yarn Classic:
+
+```bash
+yarn global add create-preset
+```
+
+Bun:
+
+```bash
+bun add -g create-preset
+```
+
+Check the version with `preset -v`. The examples below use the global `preset` command. The Yarn global installation command applies to Yarn Classic.
+
+Update a global installation with `preset upgrade`, then run `preset -v` again to check the version.
+
+## Direct creation
+
+Use `--from` to select a source directly. For example, run the official Vue generator with pnpm:
+
+```bash
+preset init my-vue-app --from vue --package-manager pnpm
+```
+
+The Vue generator handles the remaining setup and installation prompts.
+
+List the available official generator IDs and configured private presets with:
+
+```bash
+preset --list
+```
+
+Use an ID from this list with `--from`. Unknown sources exit with an error.
+
+`--from` also accepts a configured private preset name, a local JSON file path, or a remote config URL:
+
+```bash
+preset init my-docs --from https://example.com/preset.json
+```
+
+Replace the example URL with an actual config URL. Create Preset downloads the template and applies the configured file and dependency changes. See [Preset configs](https://preset.js.org/agent/guide/preset-configs.md) for the format.
+
+## Preview creation
+
+Add `--dry-run` to preview the JSON creation plan:
+
+```bash
+preset init my-vue-app --from vue --package-manager pnpm --dry-run
+preset init my-docs --from ./preset.json --dry-run
+```
+
+The preview shows the target and source without cloning repositories, running generators, querying npm versions, or changing project files. Remote config URLs are still fetched and validated.
+
+When replacing files in an existing target directory, the CLI asks for confirmation. Add `--yes` to allow replacement in a script:
+
+```bash
+preset init my-docs --from ./preset.json --yes
+```
+
+`--yes` skips only Create Preset's replacement confirmation. Official generators keep their own prompts.
+
+## Add files to an existing project
+
+Use a JSON preset with `apply` to preserve unrelated files and stop on conflicts:
+
+```bash
+preset apply .agents/skills --from ./skills.json --include code-review --include testing
+```
+
+Add `--dry-run` to compare actual generated files without modifying the target. This preview clones the source into temporary storage. See [Preset configs](https://preset.js.org/agent/guide/preset-configs.md) for selection and conflict rules.
+
+## Change the language
+
+Create Preset follows the system language and supports English, Simplified Chinese, Traditional Chinese, and Japanese. Set `PRESET_LANG` to choose a language explicitly. For example, switch to Japanese in a macOS or Linux terminal:
+
+```bash
+PRESET_LANG=ja-JP preset init
+```
+
+Official generators determine their own prompt language.
+
+---
+
+Source: https://preset.js.org/agent/examples/variants.md
+
+# One template, different editions
+
+The basic edition does not need analytics; the team edition does. Everything else is the same. With a separate template for each, every shared bug needs fixing twice.
+
+Keep the complete source, including analytics, and add a config that removes it for the basic edition. Below, `basic.json` removes the analytics file and its references in the entry point. `team.json` keeps them.
+
+> Fictional repository and commands. Replace them with your actual repository and config paths.
+
+### Source files
+
+#### starter/src/main.ts
+
+```
+import { track } from './analytics'
+
+track('app-started')
+console.log('Hello')
+```
+
+#### starter/src/analytics.ts
+
+```
+export function track(event: string) {
+  console.log('[analytics]', event)
+}
+```
+
+#### starter/package.json
+
+```json
+{
+  "name": "app-starter",
+  "version": "1.0.0",
+  "private": true
+}
+```
+
+### Basic
+
+```bash
+pnpm create preset init my-basic-app --from ./presets/basic.json
+```
+
+#### presets/basic.json
+
+```json
+{
+  "$schema": "https://preset.js.org/schema/preset.schema.json",
+  "version": 1,
+  "source": {
+    "repo": "https://github.com/example/app-starter.git",
+    "directory": "starter"
+  },
+  "exclude": [
+    "src/analytics.ts"
+  ],
+  "replace": [
+    {
+      "path": "src/main.ts",
+      "from": "import { track } from './analytics'\n\ntrack('app-started')\n",
+      "to": ""
+    }
+  ]
+}
+```
+
+#### Output directory: my-basic-app
+
+#### src/main.ts
+
+```
+console.log('Hello')
+```
+
+#### package.json
+
+```json
+{
+  "name": "my-basic-app",
+  "version": "1.0.0",
+  "private": true
+}
+```
+
+### Team
+
+```bash
+pnpm create preset init my-team-app --from ./presets/team.json
+```
+
+#### presets/team.json
+
+```json
+{
+  "$schema": "https://preset.js.org/schema/preset.schema.json",
+  "version": 1,
+  "source": {
+    "repo": "https://github.com/example/app-starter.git",
+    "directory": "starter"
+  }
+}
+```
+
+#### Output directory: my-team-app
+
+#### src/main.ts
+
+```
+import { track } from './analytics'
+
+track('app-started')
+console.log('Hello')
+```
+
+#### src/analytics.ts
+
+```
+export function track(event: string) {
+  console.log('[analytics]', event)
+}
+```
+
+#### package.json
+
+```json
+{
+  "name": "my-team-app",
+  "version": "1.0.0",
+  "private": true
+}
+```
+
+## Template differences
+
+Both configs take files from `starter`. The basic edition adds two steps:
+
+- `exclude` leaves out `src/analytics.ts`.
+- `replace` removes the import and call from `src/main.ts`, so the entry point no longer refers to the deleted file.
+
+The team edition keeps both files. In each edition, the generated `package.json` name matches the target directory: `my-basic-app` or `my-team-app`.
+
+Shared fixes go into the source repository once. New projects use the selected preset when created; projects already generated need updating separately.
+
+## Text replacement rules
+
+`replace` matches exact text. After editing the entry point, check the config's `from` value too. Creation fails if that text can no longer be found.
+
+This works for small, explicit file differences. Any references that need removing must be listed in the config. The CLI does not analyze module references or convert TypeScript automatically.
+
+See [Preset Configs](https://preset.js.org/agent/guide/preset-configs.md) for more operations.
+
+---
+
+Source: https://preset.js.org/agent/guide/official-generators.md
+
+# Official Generators
+
+Create Preset passes the project name to the selected official CLI, which handles configuration and dependency installation.
+
+## Supported generators
+
+The table shows the pnpm commands:
+
+| Preset | `--from` ID | Package manager command |
+| --- | --- | --- |
+| Official Vue Starter | `vue` | `pnpm create vue <project>` |
+| Nuxt | `nuxt` | `pnpm create nuxt <project>` |
+| Official Vite CLI | `vite` | `pnpm create vite <project>` |
+| Official Next.js Starter | `next-app` | `pnpm create next-app <project>` |
+| Official React Router | `react-router` | `pnpm create react-router <project>` |
+| Official Astro Starter | `astro` | `pnpm create astro <project>` |
+| Official Expo App | `expo-app` | `pnpm create expo-app <project>` |
+| Official SvelteKit Starter | `svelte` | `pnpm dlx sv create <project>` |
+
+`<project>` is replaced with the supplied project name.
+
+For SvelteKit, use `--from svelte`; the generator package it launches is `sv`. Run `preset --list` to inspect the available IDs, including private presets.
+
+## Choose a package manager
+
+Use `--package-manager` to select pnpm, npm, Yarn, or Bun. For example, create a Next.js project with pnpm:
+
+```bash
+preset init dashboard --from next-app --package-manager pnpm
+```
+
+This selects the package manager that launches the generator. Its prompts, warnings, and update notices appear directly in the terminal.
+
+Without `--package-manager`, Create Preset detects the package manager from the current npm user agent and falls back to npm. Use `--dry-run` to inspect the selected command without launching it:
+
+```bash
+preset init dashboard --from next-app --package-manager pnpm --dry-run
+```
+
+---
+
+Source: https://preset.js.org/agent/examples/skills.md
+
+# Reuse skills across projects
+
+Code review, documentation, and testing often use the same skills across projects. Keeping them in one shared repository saves finding and copying each folder whenever a new project needs them.
+
+This example keeps three skills in the `skills` directory of `team-resources`. One config includes all three. The other uses `exclude` to leave out `testing` when it is not needed.
+
+> Fictional repository and commands. Replace them with your actual repository and config paths.
+
+### Source files
+
+#### skills/code-review/SKILL.md
+
+```
+---
+name: code-review
+description: Review code changes for correctness and edge cases.
+---
+
+Read the diff. Report concrete problems with file references.
+```
+
+#### skills/writing/SKILL.md
+
+```
+---
+name: writing
+description: Edit project documentation for clarity.
+---
+
+Use short, direct sentences. Keep commands and API names accurate.
+```
+
+#### skills/testing/SKILL.md
+
+```
+---
+name: testing
+description: Check changed behavior with focused tests.
+---
+
+Read the project test commands. Cover the changed behavior and failure paths.
+```
+
+### All skills
+
+```bash
+pnpm create preset init .agents/skills --from ./presets/skills.json
+```
+
+#### presets/skills.json
+
+```json
+{
+  "$schema": "https://preset.js.org/schema/preset.schema.json",
+  "version": 1,
+  "source": {
+    "repo": "https://github.com/example/team-resources.git",
+    "directory": "skills"
+  }
+}
+```
+
+#### Output directory: .agents/skills
+
+#### code-review/SKILL.md
+
+```
+---
+name: code-review
+description: Review code changes for correctness and edge cases.
+---
+
+Read the diff. Report concrete problems with file references.
+```
+
+#### writing/SKILL.md
+
+```
+---
+name: writing
+description: Edit project documentation for clarity.
+---
+
+Use short, direct sentences. Keep commands and API names accurate.
+```
+
+#### testing/SKILL.md
+
+```
+---
+name: testing
+description: Check changed behavior with focused tests.
+---
+
+Read the project test commands. Cover the changed behavior and failure paths.
+```
+
+### Without testing
+
+```bash
+pnpm create preset init .agents/skills --from ./presets/skills-without-testing.json
+```
+
+#### presets/skills-without-testing.json
+
+```json
+{
+  "$schema": "https://preset.js.org/schema/preset.schema.json",
+  "version": 1,
+  "source": {
+    "repo": "https://github.com/example/team-resources.git",
+    "directory": "skills"
+  },
+  "exclude": [
+    "testing"
+  ]
+}
+```
+
+#### Output directory: .agents/skills
+
+#### code-review/SKILL.md
+
+```
+---
+name: code-review
+description: Review code changes for correctness and edge cases.
+---
+
+Read the diff. Report concrete problems with file references.
+```
+
+#### writing/SKILL.md
+
+```
+---
+name: writing
+description: Edit project documentation for clarity.
+---
+
+Use short, direct sentences. Keep commands and API names accurate.
+```
+
+## Target directory
+
+Run the example command from the project root with a new or empty `.agents/skills` directory as the target. For example, `skills/code-review/SKILL.md` in the repository becomes `.agents/skills/code-review/SKILL.md` in the project.
+
+If the agent reads skills from another location, change the target path in the command. Several projects can use this repository without an npm package for distribution.
+
+## Existing skills
+
+Use `apply` to add skills while preserving the existing directory:
+
+```bash
+pnpm create preset apply .agents/skills --from ./presets/skills.json --include code-review --include writing
+```
+
+Repeated `--include` arguments replace the config's selection. Configured `exclude` paths still apply. Omit `--include` to use the config's list, or select all source files if it has no list.
+
+Add `--dry-run` to generate temporary files and compare them before installation. Identical files are skipped. Different content, file types, or Unix executable permissions are reported as conflicts before any target writes. Resolve conflicts manually; `apply` does not overwrite or delete existing files. `init` still replaces a nonempty target after confirmation.
+
+Create Preset does not sync updates automatically or link skills into other agents' directories. See [Preset configs](https://preset.js.org/agent/guide/preset-configs.md) for selection and rollback details.
+
+Each preset reads one source repository. Skills from several repositories need collecting in one repository before this config can distribute them together.
+
+---
+
+Source: https://preset.js.org/agent/guide/private-presets.md
+
+# Private Presets
+
+Add team template repositories to a local JSON file. After binding the file, select a template in `preset init` or use its name directly.
+
+## Add a repository template
+
+Create `private-presets.json` with the template details:
+
+```json
+[
+  {
+    "tech": "python",
+    "name": "company-fastapi",
+    "desc": "Company FastAPI service",
+    "repo": "git@github.com:company/fastapi-preset.git"
+  }
+]
+```
+
+Replace `repo` with the actual repository URL and check that local Git can access it. `tech` groups presets by stack, `name` identifies the preset, and `desc` is an optional description.
+
+Register the file, then check the saved path:
+
+```bash
+preset config set /path/to/private-presets.json
+preset config get
+```
+
+Replace `/path/to/private-presets.json` with the actual path, then create a project by name:
+
+```bash
+preset init my-service --from company-fastapi
+```
+
+Each `tech` value becomes a stack option, supporting custom groups such as Python, Go, iOS, and Android. Private options appear before official generators within each stack.
+
+`config set` validates the manifest before saving its path. The file must contain at least one preset, names and sources must be unique, and each entry must define exactly one of `repo` or `config`.
+
+## Remove a binding
+
+Clear the saved path with:
+
+```bash
+preset config remove
+```
+
+The command clears the binding and keeps the file. If the bound file is missing or invalid, the CLI prints a warning and keeps built-in generators available. Check the available sources with `preset --list`.
+
+## Use a preset config
+
+Use `config` for templates that need a repository subdirectory or file changes. For example, add this entry to the private preset list:
+
+```json
+{
+  "tech": "react",
+  "name": "company-docs",
+  "config": "./company-docs.json"
+}
+```
+
+Each entry uses either `repo` or `config`. The relative path above starts from the directory containing `private-presets.json`. See [Preset configs](https://preset.js.org/agent/guide/preset-configs.md) for the contents of `company-docs.json`.
+
+For custom stack labels and colors, use the format with a `version` field described in the [private preset reference](https://preset.js.org/agent/reference/private-presets.md).
+
+## Apply a team preset
+
+Register a config-backed preset for a reusable team selection:
+
+```json
+{
+  "tech": "skills",
+  "name": "team-skills",
+  "config": "./skills.json"
+}
+```
+
+After adding this entry to the bound manifest, use its name to add files to a project:
+
+```bash
+preset apply .agents/skills --from team-skills
+preset apply .agents/skills --from team-skills --include code-review --dry-run
+```
+
+`apply` accepts `config` entries, not bare `repo` entries or official generators. It preserves unrelated files, skips identical files, and stops on conflicts. Repeated `--include` arguments replace the config selection; exclusions remain active. See [Preset configs](https://preset.js.org/agent/guide/preset-configs.md) for the JSON format and preview behavior.
+
+## Files kept in the new project
+
+When using `repo` directly, the CLI removes only the cloned `.git` metadata. Lockfiles, licenses, workflows, skills, and `AGENTS.md` files are preserved. If a `package.json` exists, its `name` is updated to match the new project name.
+
+When using `config`, files are also processed according to that config's rules.
+
+---
+
+Source: https://preset.js.org/agent/examples/monorepo.md
+
+# Extract a project from a monorepo
+
+The docs starter lives in `apps/docs` and the component library in `packages/ui`. A new docs site only needs the starter, but copying that directory still leaves test files to remove and `workspace:` dependencies to fix.
+
+The config below handles those steps together: take files from `apps/docs`, exclude `src/__tests__`, and set the component library dependency to a specific version.
+
+> Fictional repository and commands. Replace them with your actual repository and config paths.
+
+### Source files
+
+#### apps/docs/src/page.ts
+
+```
+import { Button } from '@example/ui'
+
+export const action = Button({ label: 'Get started' })
+```
+
+#### apps/docs/package.json
+
+```json
+{
+  "name": "docs-starter",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@example/ui": "workspace:*"
+  }
+}
+```
+
+#### apps/docs/src/__tests__/page.test.ts
+
+```
+// Tests used while maintaining this starter.
+```
+
+#### packages/ui/package.json
+
+```json
+{
+  "name": "@example/ui",
+  "version": "1.2.3"
+}
+```
+
+#### pnpm-workspace.yaml
+
+```
+packages:
+  - apps/*
+  - packages/*
+```
+
+### Standalone docs
+
+```bash
+pnpm create preset init my-docs --from ./presets/docs.json
+```
+
+#### presets/docs.json
+
+```json
+{
+  "$schema": "https://preset.js.org/schema/preset.schema.json",
+  "version": 1,
+  "source": {
+    "repo": "https://github.com/example/product.git",
+    "directory": "apps/docs"
+  },
+  "exclude": [
+    "src/__tests__"
+  ],
+  "packageJson": {
+    "resolveWorkspace": true,
+    "workspaceVersions": {
+      "@example/ui": "1.2.3"
+    }
+  }
+}
+```
+
+#### Output directory: my-docs
+
+#### src/page.ts
+
+```
+import { Button } from '@example/ui'
+
+export const action = Button({ label: 'Get started' })
+```
+
+#### package.json
+
+```json
+{
+  "name": "my-docs",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@example/ui": "1.2.3"
+  }
+}
+```
+
+## Subdirectory and file exclusions
+
+With `source.directory` set to `apps/docs`, that directory's contents become the new project's root files. Neither `packages/ui` nor the repository's root `pnpm-workspace.yaml` is copied.
+
+Paths in `exclude` start from the selected directory too. Use `src/__tests__`, without the `apps/docs` prefix.
+
+## Workspace dependency conversion
+
+Enable `packageJson.resolveWorkspace` and set `@example/ui` to `1.2.3` in `workspaceVersions`. The generated `package.json` uses that version in place of `workspace:*`, with no registry lookup for this package.
+
+`@example/ui` is an example name. Use a published package and version that the environment can install. This changes the dependency version; it does not copy or bundle the component source from `packages/ui`.
+
+Without a specified version, the CLI queries `npm view` using the current npm registry settings. See [Resolve workspace dependencies](https://preset.js.org/agent/guide/preset-configs.md#resolve-workspace-dependencies) for the full rules.
+
+---
+
+Source: https://preset.js.org/agent/guide/preset-configs.md
+
+# Preset Configs
+
+Use `preset.json` for templates in monorepo subdirectories or those that need file changes, such as removing tests or replacing the README.
+
+Host the config on a website, then create a project from its URL:
+
+```bash
+preset init my-docs --from https://example.com/preset.json
+```
+
+Replace the example URL with the actual URL. Create Preset downloads the repository and applies the configured file and dependency changes.
+
+## Write a config
+
+This config copies `apps/starter` from the repository, excludes test files, writes a new README, and replaces workspace dependencies with published versions. `$schema` enables editor completion and validation:
+
+```json
+{
+  "$schema": "https://preset.js.org/schema/preset.schema.json",
+  "version": 1,
+  "source": {
+    "repo": "https://github.com/company/product.git",
+    "directory": "apps/starter"
+  },
+  "exclude": ["src/app/__tests__", "vitest.config.ts"],
+  "write": [
+    {
+      "path": "README.md",
+      "lines": ["# Product Docs", "", "Run `pnpm dev` to begin."]
+    }
+  ],
+  "packageJson": {
+    "resolveWorkspace": true
+  }
+}
+```
+
+`source.directory` is relative to the repository root. Other paths are relative to the template directory, so this example processes files inside `apps/starter`.
+
+File operations run in this order:
+
+- `include` selects exact source-relative files or directories; omission selects all.
+- `exclude` removes paths from that selection before copying.
+- `write` creates or replaces a UTF-8 text file from an array of lines.
+- `replace` replaces every exact text match in an existing UTF-8 file.
+- `json` applies a recursive merge patch to an existing JSON object; a `null` value removes a key.
+
+With `init`, the generated `package.json.name` is set to the project name.
+
+## Select files with include and exclude
+
+`include` lists exact files or directories relative to `source.directory`. Directories include their descendants; paths are not globs. Omit `include` to select all source files. With both fields present, `exclude` takes precedence. A selected directory is not flattened in the output.
+
+```json
+{
+  "version": 1,
+  "source": {
+    "repo": "https://github.com/example/team-resources.git",
+    "directory": "skills"
+  },
+  "include": ["code-review", "testing"],
+  "exclude": ["testing/fixtures"]
+}
+```
+
+An empty or null `include`, a missing selected path, or a selection with no files after exclusions fails. Symbolic links and paths outside the source are rejected. When `include` is present, file operations must stay within that selection and cannot recreate excluded files. Without `include`, existing transformation behavior is unchanged.
+
+Repeat `--include` on `init` or `apply` to replace the entire config selection. Configured exclusions still apply. This option requires a JSON preset; it is not passed to official generators.
+
+```bash
+preset apply .agents/skills --from ./skills.json --include code-review --include writing
+```
+
+A static website can publish a base JSON config and turn checked items into repeated `--include` arguments. Department presets can keep their selections in JSON.
+
+## Add files to an existing project
+
+```bash
+preset apply .agents/skills --from ./skills.json --dry-run
+preset apply .agents/skills --from ./skills.json
+```
+
+`apply` accepts a local/remote JSON config or a registered private preset backed by a config. It adds missing files, skips identical files, and reports differing content or file types as conflicts before writing anything. On Unix, executable permission differences also count as conflicts. Unrelated files remain intact, and `package.json.name` is not automatically rewritten. Empty directories alone are not installed.
+
+The command prints JSON with `add`, `skip`, and `conflicts`; conflicts produce a nonzero exit status in both normal and dry-run modes. `apply` has no `--yes` or overwrite mode. It rejects symbolic links along destination paths and does not follow them when publishing files. It does not synchronize deletions or automatically update modified files.
+
+Unlike `init --dry-run`, `apply --dry-run` clones the source and runs configured transformations in temporary storage to compare actual files. It may query npm if workspace resolution is enabled, but does not create target directories or modify target files. Normal publication errors roll back this run's additions. Recovery failures report retained paths; forced termination or a system crash can leave partial additions. Avoid editing destination paths concurrently with an apply operation.
+
+## Preview and replace files
+
+Preview the creation plan:
+
+```bash
+preset init test-docs --from ./preset.json --dry-run
+```
+
+The JSON output lists the target directory, whether existing files would be replaced, the source, file operations, and metadata cleanup. Remote configs are fetched and validated, but previews never clone repositories, query npm versions, or change project files.
+
+Before publishing, create a project from the local config and check the generated files:
+
+```bash
+preset init test-docs --from ./preset.json
+```
+
+Configs are loaded before any target changes, allowing `preset init . --from ./preset.json`. A nonempty target requires replacement confirmation; use `--yes` to allow replacement in scripts.
+
+Projects are generated in a temporary directory first. If generation fails, existing target files stay intact. Backups are kept until replacement completes, and errors restore the originals. If restoration fails, the error reports the backup location. Forced process termination or a system crash can interrupt recovery.
+
+## Resolve workspace dependencies
+
+Monorepo templates need published versions in place of `workspace:` dependencies to install outside the repository. Set `packageJson.resolveWorkspace` to `true` to query and replace versions through `npm view`.
+
+Queries use the npm configuration, including scoped private registries in `.npmrc`. Use `packageJson.workspaceVersions` to specify a version or range.
+
+This `packageJson` config pins two dependencies and skips their registry queries:
+
+```json
+{
+  "resolveWorkspace": true,
+  "workspaceVersions": {
+    "vue": "3.4.38",
+    "@company/ui": "1.8.2"
+  }
+}
+```
+
+Resolution covers `dependencies`, `devDependencies`, `peerDependencies`, and `optionalDependencies`, and requires a `package.json` in the generated project. Without a pin, `workspace:*` becomes `^<published-version>` and `workspace:~` becomes `~<published-version>`.
+
+## Config validation
+
+Use HTTPS for remote configs and their source repositories. HTTP is also accepted for trusted private networks, with a CLI warning. Remote configs cannot reference local files or SSH repository URLs.
+
+Config files are limited to 1 MiB, with at most 1,000 operations in total across `include`, `exclude`, `write`, `replace`, and `json`. The CLI rejects unknown fields, unsupported versions, paths outside the generated project, and source symlinks. Config values never evaluate JavaScript or invoke a shell. The JSON Schema helps catch errors in the editor; the CLI validates the config again when it runs.
+
+## Blackwork example
+
+[Blackwork](https://github.com/chengpeiquan/blackwork) keeps its documentation template in a monorepo. Its `preset.json` selects the template directory, removes files used only in the monorepo, and resolves published Blackwork package versions. The project maintains both the template and its config.
+
+See the [preset config reference](https://preset.js.org/agent/reference/preset-configs.md) for more fields and examples.
+
+---
+
+Source: https://preset.js.org/agent/examples/file-changes.md
+
+# Edit files during project creation
+
+After cloning a service starter, there are often demo files to remove, a README to rewrite, defaults to change, and a demo command to delete from `package.json`. When the edits are the same each time, put them in a preset.
+
+> Fictional repository and commands. Replace them with your actual repository and config paths.
+
+### Source files
+
+#### index.js
+
+```
+console.log('Service ready')
+```
+
+#### demo.js
+
+```
+console.log('Sample data')
+```
+
+#### README.md
+
+```
+# Service starter
+
+A template with sample data.
+```
+
+#### .env.example
+
+```
+APP_LABEL=Starter
+```
+
+#### package.json
+
+```json
+{
+  "name": "service-starter",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node index.js",
+    "demo": "node demo.js"
+  }
+}
+```
+
+### Team service
+
+```bash
+pnpm create preset init my-service --from ./presets/service.json
+```
+
+#### presets/service.json
+
+```json
+{
+  "$schema": "https://preset.js.org/schema/preset.schema.json",
+  "version": 1,
+  "source": {
+    "repo": "https://github.com/example/service-starter.git",
+    "directory": ""
+  },
+  "exclude": [
+    "demo.js"
+  ],
+  "write": [
+    {
+      "path": "README.md",
+      "lines": [
+        "# Team service",
+        "",
+        "Run `npm start` to start the service."
+      ]
+    }
+  ],
+  "replace": [
+    {
+      "path": ".env.example",
+      "from": "APP_LABEL=Starter",
+      "to": "APP_LABEL=Team"
+    }
+  ],
+  "json": [
+    {
+      "path": "package.json",
+      "value": {
+        "scripts": {
+          "demo": null
+        }
+      }
+    }
+  ]
+}
+```
+
+#### Output directory: my-service
+
+#### index.js
+
+```
+console.log('Service ready')
+```
+
+#### README.md
+
+```
+# Team service
+
+Run `npm start` to start the service.
+```
+
+#### .env.example
+
+```
+APP_LABEL=Team
+```
+
+#### package.json
+
+```json
+{
+  "name": "my-service",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node index.js"
+  }
+}
+```
+
+## Operation order
+
+1. `exclude` skips `demo.js` during copying, leaving it out of the new project.
+2. `write` rewrites `README.md`, with each entry in `lines` becoming one line in the file.
+3. `replace` changes `APP_LABEL=Starter` to `APP_LABEL=Team` in `.env.example`.
+4. `json` edits `package.json`. Setting `scripts.demo` to `null` removes that command and keeps `scripts.start`.
+
+## Preview the creation plan
+
+Save the config as `presets/service.json`, then add `--dry-run` to see the planned operations:
+
+```bash
+pnpm create preset init my-service --from ./presets/service.json --dry-run
+```
+
+This step does not download the repository, so it cannot check whether the original text in `replace` exists. After checking the plan, remove `--dry-run` to create the project and inspect the files.
+
+See [Preset Configs](https://preset.js.org/agent/guide/preset-configs.md) for other fields.
+
+---
+
+Source: https://preset.js.org/agent/guide/migration.md
+
+# Migration to 1.0
+
+Version 1.0 removes the remote community and official template lists. Official generators are built in, and private presets are loaded from a local config. Check template names and command options in existing scripts before upgrading.
+
+## Changes to existing commands
+
+| Old usage | What to change |
+| --- | --- |
+| `--template` | Use `--from` and check that the source name is still available |
+| `preset proxy on/off` | Configure network access through the package manager or Git |
+| `config --tech` / `localTech` | Add `tech` in the private preset file |
+| `preset i` / `preset c` / `preset u` | Use `preset init` / `preset config` / `preset upgrade` |
+| `mirror` setting | Configure repository access through Git and registry access through the package manager |
+| Remote community starters | Add any template repositories still needed as private presets |
+
+`--from` accepts an official generator ID, private preset name, or JSON config path or URL. Old template names do not map automatically to new sources. Add repositories still needed as [private presets](https://preset.js.org/agent/guide/private-presets.md).
+
+Run `preset --list` to check the new source IDs before updating scripts. For example, the official SvelteKit generator uses `svelte`. An unknown `--from` value exits with an error.
+
+Version 1.0 still accepts the hidden `--template` option and prints a migration notice when it is used. Update scripts to use `--from`, then run each command to check the source.
+
+---
+
+Source: https://preset.js.org/agent/reference/preset-configs.md
+
+# Preset configs
+
+A `preset.json` describes how to turn a maintained repository starter into a
+new project. Create Preset performs the checkout, file operations, dependency
+resolution, and rollback; no second CLI is required.
+
+Publish the file at a URL ending in `.json`:
+
+```bash
+preset init my-docs --from https://example.com/preset.json
+```
+
+Local files use the same contract:
+
+```bash
+preset init my-docs --from ./preset.json
+```
+
+## Preview and replacement
+
+Preview the validated plan before creating a project:
+
+```bash
+preset init my-docs --from ./preset.json --dry-run
+```
+
+The JSON output includes the target directory, whether existing files would be
+replaced, the repository source, all configured operations, and the final
+metadata cleanup. Remote configs are fetched for validation, but previewing
+never clones the source, resolves package versions, or changes files.
+
+Config files are loaded before any target changes, so this also works:
+
+```bash
+preset init . --from ./preset.json
+```
+
+Generation and transformations finish in a temporary directory first. If they
+fail, existing target files stay intact. When replacing files, a backup remains
+available until publication completes. Normal errors restore originals; if
+restoration itself fails, the error reports where the backup was retained.
+This is filesystem rollback for the target directory, not recovery from a
+forced process kill or a system crash.
+
+Use `--yes` to explicitly allow replacing target files in scripts. Without it,
+replacing a nonempty directory still requires confirmation.
+
+## Minimal config
+
+Add `$schema` for editor completion and validation:
+
+```json
+{
+  "$schema": "https://preset.js.org/schema/preset.schema.json",
+  "version": 1,
+  "source": {
+    "repo": "https://github.com/example/project.git",
+    "directory": "starters/docs"
+  }
+}
+```
+
+`version` must be `1`. `source.repo` is required. `source.directory` selects a
+subdirectory inside the cloned repository and defaults to the repository root.
+
+## Select files with include and exclude
+
+`include` lists exact files or directories relative to `source.directory`. Directories include their descendants; paths are not globs. Omit `include` to select all source files. With both fields present, `exclude` takes precedence. A selected directory is not flattened in the output.
+
+```json
+{
+  "version": 1,
+  "source": {
+    "repo": "https://github.com/example/team-resources.git",
+    "directory": "skills"
+  },
+  "include": ["code-review", "testing"],
+  "exclude": ["testing/fixtures"]
+}
+```
+
+An empty or null `include`, a missing selected path, or a selection with no files after exclusions fails. Symbolic links and paths outside the source are rejected. When `include` is present, file operations must stay within that selection and cannot recreate excluded files. Without `include`, existing transformation behavior is unchanged.
+
+Repeat `--include` on `init` or `apply` to replace the entire config selection. Configured exclusions still apply. This option requires a JSON preset; it is not passed to official generators.
+
+```bash
+preset apply .agents/skills --from ./skills.json --include code-review --include writing
+```
+
+A static website can publish a base JSON config and turn checked items into repeated `--include` arguments. Department presets can keep their selections in JSON.
+
+## Add files to an existing project
+
+```bash
+preset apply .agents/skills --from ./skills.json --dry-run
+preset apply .agents/skills --from ./skills.json
+```
+
+`apply` accepts a local/remote JSON config or a registered private preset backed by a config. It adds missing files, skips identical files, and reports differing content or file types as conflicts before writing anything. On Unix, executable permission differences also count as conflicts. Unrelated files remain intact, and `package.json.name` is not automatically rewritten. Empty directories alone are not installed.
+
+The command prints JSON with `add`, `skip`, and `conflicts`; conflicts produce a nonzero exit status in both normal and dry-run modes. `apply` has no `--yes` or overwrite mode. It rejects symbolic links along destination paths and does not follow them when publishing files. It does not synchronize deletions or automatically update modified files.
+
+Unlike `init --dry-run`, `apply --dry-run` clones the source and runs configured transformations in temporary storage to compare actual files. It may query npm if workspace resolution is enabled, but does not create target directories or modify target files. Normal publication errors roll back this run's additions. Recovery failures report retained paths; forced termination or a system crash can leave partial additions. Avoid editing destination paths concurrently with an apply operation.
+
+## Operations
+
+After selecting the source directory, Create Preset copies its files with
+`include` and `exclude` applied, then runs the remaining operations:
+
+- `include` selects exact source-relative files or directories; omission selects all.
+- `exclude` removes paths from that selection before copying.
+- `write` creates or replaces a UTF-8 text file from an array of lines.
+- `replace` replaces every exact text match in an existing UTF-8 file.
+- `json` applies a recursive merge patch to an existing JSON object. A `null`
+  value removes a key.
+- `packageJson.resolveWorkspace` replaces `workspace:` dependencies in
+  `dependencies`, `devDependencies`, `peerDependencies`, and
+  `optionalDependencies` with published npm versions.
+- `packageJson.workspaceVersions` pins selected workspace dependencies to an
+  explicit version or range and skips the registry lookup for those entries.
+
+```json
+{
+  "$schema": "https://preset.js.org/schema/preset.schema.json",
+  "version": 1,
+  "source": {
+    "repo": "https://github.com/example/project.git",
+    "directory": "starters/docs"
+  },
+  "exclude": ["src/__tests__", "vitest.config.ts"],
+  "write": [
+    {
+      "path": "README.md",
+      "lines": [
+        "# Documentation",
+        "",
+        "Run `pnpm dev` to start the site."
+      ]
+    }
+  ],
+  "replace": [
+    {
+      "path": ".env.example",
+      "from": "COMPANY_NAME=Example",
+      "to": "COMPANY_NAME=Acme"
+    }
+  ],
+  "json": [
+    {
+      "path": "package.json",
+      "value": {
+        "private": true,
+        "scripts": {
+          "test": null
+        }
+      }
+    }
+  ],
+  "packageJson": {
+    "resolveWorkspace": true,
+    "workspaceVersions": {
+      "vue": "3.4.38",
+      "@company/ui": "1.8.2"
+    }
+  }
+}
+```
+
+When no pin is provided, the runtime invokes `npm view <package> version`.
+The lookup inherits the npm registry settings from the environment, including
+`.npmrc` scope registries and private registries:
+
+```ini
+registry=https://registry.npmjs.org/
+@company:registry=https://npm.company.example.com/
+```
+
+`resolveWorkspace` requires a `package.json` in the generated project. A
+`workspace:*` dependency becomes `^<published-version>`; `workspace:~` becomes
+`~<published-version>`.
+
+## Security and limits
+
+Use HTTPS for public config URLs and repository sources. HTTP is accepted for
+trusted private networks and prints a warning. A remote config may reference
+only an HTTP(S) repository; local paths, `file://`, and SSH URLs are rejected
+in that case.
+
+The runtime enforces these boundaries:
+
+- remote and local config files are limited to 1 MiB;
+- config operation counts (including include/exclude paths) are limited to 1,000;
+- unknown fields and unsupported versions are rejected;
+- paths must stay relative to the generated project;
+- source symlinks are rejected;
+- config values never evaluate JavaScript or invoke a shell.
+
+The published schema supports editor tooling. Runtime validation remains
+authoritative when a schema-aware editor is unavailable or incomplete.
+
+## Showcase
+
+Blackwork keeps its documentation starter in the Blackwork monorepo. Its
+config selects `apps/docs-starter`, excludes workspace-only files, rewrites
+package metadata, and resolves published Blackwork package versions.
+
+---
+
+Source: https://preset.js.org/agent/reference/private-presets.md
+
+# Private presets
+
+Private presets add repository starters or `preset.json` configs to the
+interactive catalog. A manifest is validated before the path is saved.
+
+## Bind a manifest
+
+```bash
+preset config set /path/to/private-presets.json
+```
+
+The path is stored in the user runtime config. Inspect or clear it with:
+
+```bash
+preset config get
+preset config remove
+```
+
+The manifest must be a JSON file with at least one preset. Preset names and
+sources must be unique, and every preset must define exactly one of `repo` or
+`config`.
+
+If the saved file is missing or invalid during a later `preset init`, a warning
+is printed and built-in generators remain available. Run `preset config remove`
+to clear the stale path.
+
+## Simple format
+
+Use an array when each entry points directly to a repository or config:
+
+```json
+[
+  {
+    "tech": "python",
+    "name": "company-fastapi",
+    "desc": "Company FastAPI service",
+    "repo": "git@github.com:company/fastapi-preset.git"
+  },
+  {
+    "tech": "ios",
+    "name": "company-ios",
+    "repo": "https://github.com/company/ios-preset.git#main"
+  },
+  {
+    "tech": "react",
+    "name": "company-docs",
+    "desc": "Company documentation site",
+    "config": "./company-docs.json"
+  }
+]
+```
+
+Relative `config` paths are resolved from the manifest directory. Repository
+sources may use `https://`, `http://`, `git@`, or `file://`; append `#branch`
+to select a branch. A remote `config` must be an HTTP(S) URL ending in
+`.json`.
+
+Every `tech` value becomes a selectable technology stack. No separate
+registration is required. Unknown IDs are converted to display labels, so
+`company_backend` becomes `Company Backend`. Private entries appear before
+built-in official generators in the same stack.
+
+## Versioned manifest
+
+Use the manifest format when a custom stack needs a specific label or brand
+color:
+
+```json
+{
+  "version": 1,
+  "techs": {
+    "python": {
+      "label": "Python",
+      "color": "#3776ab"
+    },
+    "company_backend": {
+      "label": "Company Backend",
+      "color": "#00add8"
+    }
+  },
+  "presets": [
+    {
+      "tech": "python",
+      "name": "company-fastapi",
+      "desc": "Company FastAPI service",
+      "repo": "git@github.com:company/fastapi-preset.git"
+    }
+  ]
+}
+```
+
+`version` must be `1`. Colors use six-digit hexadecimal values. An invalid or
+missing color falls back to the terminal default without blocking project
+creation.
+
+## Create a project
+
+Start the interactive flow after binding the manifest:
+
+```bash
+preset init company-service
+```
+
+The private preset name can also be selected directly:
+
+```bash
+preset init company-service --from company-fastapi
+```
+
+For a repository preset, Create Preset clones the source, removes the cloned
+`.git` directory, and updates `package.json.name` when `package.json` exists.
+Other files, including lockfiles, `LICENSE`, and `.github` workflows, are
+preserved.
+
+For a `config` entry, the referenced plan controls the checkout and file
+transformations. See [Preset configs](https://preset.js.org/agent/reference/preset-configs.md).
+
+## Apply a team preset
+
+Register a config-backed preset for a reusable team selection:
+
+```json
+{
+  "tech": "skills",
+  "name": "team-skills",
+  "config": "./skills.json"
+}
+```
+
+After adding this entry to the bound manifest, use its name to add files to a project:
+
+```bash
+preset apply .agents/skills --from team-skills
+preset apply .agents/skills --from team-skills --include code-review --dry-run
+```
+
+`apply` accepts `config` entries, not bare `repo` entries or official generators. It preserves unrelated files, skips identical files, and stops on conflicts. Repeated `--include` arguments replace the config selection; exclusions remain active. See [Preset configs](https://preset.js.org/agent/reference/preset-configs.md) for the JSON format and preview behavior.
